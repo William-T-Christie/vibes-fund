@@ -18,6 +18,7 @@ Paper trading only. Fake money. Not investment advice.
 | `vibes/trade.py` | Sells first, then buys from real cash only; order IDs built from the date, ticker and side |
 | `vibes/record.py` | Evening record: adjusted NAV, dividends credited, SPY total return, backfill, corporate action pauses |
 | `vibes/metrics.py` | Every number on the site |
+| `vibes/replay.py` | Private replay of past sessions on a simulated paper account (see `docs/replay.md`) |
 | `vibes/scrub.py` | Fails the commit if anything in `data/vibes/` looks like a key |
 | `.github/workflows/` | Morning, evening, Sunday health check, tests. Schedule or manual runs only; actions pinned to commit SHAs |
 | `data/vibes/` | The JSON the site reads, plus `logs/YYYY-MM-DD/` |
@@ -48,6 +49,7 @@ Choices the spec left open, made in code:
 | `docs/not-ai-design-rules.md` | The rulebook every design follows so nothing looks AI generated, with the A and B direction specs and a pre ship checklist |
 | `docs/design-rules-summary.md` | Short version of the rules plus later additions: halftone everywhere, the Chairman's house portrait, the illustration review process |
 | `docs/vibes-playbook.md` | How the Chairman turns headlines into trades: mood sets cash, conviction sizing, trade kinds, daily verdicts, when to sell. Approved and built |
+| `docs/replay.md` | The private replay: running past days through the playbook to check its behavior. Results stay in `.replays/`, never published |
 | `docs/decision-log.md` | Every decision made so far and what is still open. Read this first; it overrides older wording in the docs above |
 | `docs/references.md` | The references and sources behind the design and the plan |
 | `art/chairman/` | The Chairman's house portrait (SVG and previews) and the source that generates it |

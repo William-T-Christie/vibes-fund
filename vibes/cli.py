@@ -6,6 +6,7 @@
     vibes evening           (Alpaca keys)
     vibes healthcheck       (Claude token)
     vibes scrub
+    vibes replay --name NAME [--days 100] [--end DATE] [--start DATE]   (Alpaca keys + Claude; private)
     vibes reset --confirm   (dry run only; refuses once the fund is live)
     vibes go-live --confirm
 """
@@ -37,6 +38,11 @@ def main(argv: list[str] | None = None) -> int:
     sub = p.add_subparsers(dest="cmd", required=True)
     for name in ("morning-prepare", "morning-decide", "morning-trade", "evening", "healthcheck", "scrub"):
         sub.add_parser(name)
+    rp = sub.add_parser("replay", help="Private replay of past days (results stay in .replays/, never published)")
+    rp.add_argument("--name", required=True, help="folder under .replays/; rerun the same name to resume")
+    rp.add_argument("--days", type=int, default=100)
+    rp.add_argument("--end", help="last day to replay (default: yesterday)")
+    rp.add_argument("--start", help="first day to replay (overrides counting back from --end)")
     for name in ("reset", "go-live"):
         sp = sub.add_parser(name)
         sp.add_argument("--confirm", action="store_true")
@@ -66,6 +72,14 @@ def main(argv: list[str] | None = None) -> int:
                                  '"summary": "ok", "trades": []}')
         decide.parse(raw)
         print("healthcheck: Claude token works")
+        return 0
+    if a.cmd == "replay":
+        from .alpaca import Alpaca
+        from . import replay
+        rep = replay.run(Alpaca(), name=a.name, days=a.days, end=a.end, start=a.start)
+        print(f"\nReport: {replay.replays_dir() / a.name / 'report.md'}")
+        b = rep["behavior"]
+        print(f"Average cash {b['avg_cash_pct']}%, {b['trades_filled']} trades filled, {b['declined']} declined.")
         return 0
     if a.cmd == "scrub":
         return scrub.main()

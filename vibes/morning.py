@@ -215,34 +215,7 @@ def run_trades(client: Alpaca, *, sleep=None) -> dict:
     store.write_log(day, "orders.json", records)
 
     trades = store.read("trades.json", {"trades": []})
-    for r in records:
-        trades["trades"].append({
-            "date": day,
-            "action": r["action"],
-            "ticker": r["ticker"],
-            "dollars": r.get("filled_dollars", 0.0),
-            "fill_price": r.get("fill_price"),
-            "qty": r.get("filled_qty", 0.0),
-            "status": r["status"],
-            "reason": r["reason"],
-            "link": r["headline_link"],
-            "kind": r.get("kind"),
-            "conviction": r.get("conviction"),
-            "size": r.get("size"),
-            "shrunk": bool(r.get("shrunk")),
-            "from_verdict": bool(r.get("from_verdict")),
-            "broker_message": r.get("broker_message"),
-            "outcome_pct": None,
-        })
-    for d in result.declined:
-        t = d["trade"]
-        trades["trades"].append({
-            "date": day, "action": str(t.get("action", "")).lower(), "ticker": str(t.get("ticker", "")).upper(),
-            "dollars": 0.0, "fill_price": None, "qty": 0.0, "status": "declined",
-            "reason": str(t.get("reason", "")), "link": links.get(str(t.get("headline_id", ""))),
-            "kind": t.get("kind"), "conviction": t.get("conviction"), "size": t.get("size"),
-            "compliance": d["reason"], "outcome_pct": None,
-        })
+    trades["trades"].extend(trade_log_rows(day, records, result.declined, links))
     store.write("trades.json", trades)
 
     update_support(state, day, decision, work["book"]["positions"], records)
@@ -275,3 +248,37 @@ def update_support(state: dict, day: str, decision: dict, positions: list[dict],
             support[r["ticker"]] = day
         elif r.get("close_all"):
             support.pop(r["ticker"], None)
+
+
+def trade_log_rows(day: str, records: list[dict], declined: list[dict], links: dict[str, str]) -> list[dict]:
+    """Rows for trades.json: one per order placed, and one per trade Compliance declined."""
+    rows = []
+    for r in records:
+        rows.append({
+            "date": day,
+            "action": r["action"],
+            "ticker": r["ticker"],
+            "dollars": r.get("filled_dollars", 0.0),
+            "fill_price": r.get("fill_price"),
+            "qty": r.get("filled_qty", 0.0),
+            "status": r["status"],
+            "reason": r["reason"],
+            "link": r["headline_link"],
+            "kind": r.get("kind"),
+            "conviction": r.get("conviction"),
+            "size": r.get("size"),
+            "shrunk": bool(r.get("shrunk")),
+            "from_verdict": bool(r.get("from_verdict")),
+            "broker_message": r.get("broker_message"),
+            "outcome_pct": None,
+        })
+    for d in declined:
+        t = d["trade"]
+        rows.append({
+            "date": day, "action": str(t.get("action", "")).lower(), "ticker": str(t.get("ticker", "")).upper(),
+            "dollars": 0.0, "fill_price": None, "qty": 0.0, "status": "declined",
+            "reason": str(t.get("reason", "")), "link": links.get(str(t.get("headline_id", ""))),
+            "kind": t.get("kind"), "conviction": t.get("conviction"), "size": t.get("size"),
+            "compliance": d["reason"], "outcome_pct": None,
+        })
+    return rows

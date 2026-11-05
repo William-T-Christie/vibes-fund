@@ -18,3 +18,6 @@ build/
 
 # OS
 .DS_Store
+
+# Private replays of past days (never published; see docs/replay.md)
+.replays/

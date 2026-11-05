@@ -131,6 +131,19 @@ class Alpaca:
                 return out
             params["page_token"] = tok
 
+    def intraday_bars(self, symbols: list[str], start_iso: str, end_iso: str, timeframe: str = "1Min") -> dict[str, list[dict]]:
+        out: dict[str, list[dict]] = {s: [] for s in symbols}
+        params: dict[str, Any] = {"symbols": ",".join(symbols), "timeframe": timeframe, "start": start_iso,
+                                  "end": end_iso, "adjustment": "raw", "feed": self.data_feed, "limit": 10000}
+        while True:
+            page = self.data("/v2/stocks/bars", params=params)
+            for sym, bars in (page.get("bars") or {}).items():
+                out.setdefault(sym, []).extend(bars)
+            tok = page.get("next_page_token")
+            if not tok:
+                return out
+            params["page_token"] = tok
+
     def news(self, start_iso: str, end_iso: str, limit: int = 50) -> list[dict]:
         items: list[dict] = []
         params: dict[str, Any] = {"start": start_iso, "end": end_iso, "limit": 50, "sort": "desc"}
