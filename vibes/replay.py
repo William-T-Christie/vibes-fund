@@ -210,6 +210,11 @@ def run(data, *, name: str, days: int = 100, end: str | None = None, start: str 
                                                  recent_reasons=[t["reason"] for t in st["trades"]
                                                                  if t.get("status") == "filled"][-5:])
                 decision, attempts = decide_mod.decide(prompt, caller)
+                if decision is None:
+                    # Most likely a usage limit. Stop rather than record a hole; the same name resumes here.
+                    _save(out, st)
+                    raise RuntimeError(f"Claude didn't answer for {day} (usage limit?). "
+                                       f"Rerun with --name {name} later to resume from this day.")
                 cache.write_text(json.dumps({"decision": decision, "attempts": attempts}, indent=1))
             entry["status"] = "decided" if decision else "claude_failed"
 
@@ -287,7 +292,7 @@ def run(data, *, name: str, days: int = 100, end: str | None = None, start: str 
 def _reason_key(text: str) -> str:
     """Group Compliance reasons by their shape, ignoring tickers and numbers."""
     t = re.sub(r"\$?\d[\d,.]*[%MK]?", "#", text)
-    t = re.sub(r"\b[A-Z]{1,5}(\.[A-Z])?\b", "TICKER", t)
+    t = re.sub(r"\b(?!A\b)[A-Z]{1,5}(\.[A-Z])?\b", "TICKER", t)  # "A new name" is not a ticker
     t = re.sub(r"'[^']*'", "'…'", t)
     return t
 
@@ -392,7 +397,8 @@ def report_markdown(rep: dict) -> str:
             f"| Gap vs SPY | {p['gap_vs_spy_points']} points |",
             f"| Days ahead of SPY | {p['days_ahead']} of {p['trading_days']} |",
             f"| Max drawdown | {_pct(p['max_drawdown_pct'])} |",
-            f"| Volatility, annualized | {_pct(p['volatility_pct'])} (SPY {_pct(p['spy_volatility_pct'])}); needs 20 days |",
+            f"| Volatility, annualized | {_pct(p['volatility_pct'])} (SPY {_pct(p['spy_volatility_pct'])})"
+            f"{'; needs 20 days' if p['volatility_pct'] is None else ''} |",
             f"| Win rate on closed trades | {_pct(p['win_rate_pct'])} of {p['closed_trades']} |",
             f"| Slippage reserve charged | ${p['slippage_reserve_total']:,.2f} |",
         ]

@@ -85,3 +85,26 @@ def test_sim_broker_never_borrows():
     b.prices = {"AAPL": 100.0}
     b.submit_order(symbol="AAPL", side="buy", notional=5_000, client_order_id="x")
     assert b.cash == 0 and b.qty["AAPL"] == 10
+
+
+def test_replay_stops_and_resumes_when_claude_is_unavailable(fake_alpaca):
+    import pytest
+    data = make_data(fake_alpaca)
+    good, calls = chairman()
+    state = {"down": False}
+
+    def flaky(prompt):
+        if state["down"]:
+            raise replay.decide_mod.DecisionError("rate limited")
+        out = good(prompt)
+        if len(calls) == 3:
+            state["down"] = True
+        return out
+
+    with pytest.raises(RuntimeError, match="resume"):
+        replay.run(data, name="t2", days=8, end=DAYS[-1], caller=flaky, log=lambda m: None)
+    st = json.loads((config.ROOT / ".replays" / "t2" / "state.json").read_text())
+    assert st["done"] == DAYS[:3]
+    state["down"] = False
+    rep = replay.run(data, name="t2", days=8, end=DAYS[-1], caller=good, log=lambda m: None)
+    assert rep["behavior"]["days_by_status"] == {"decided": 8}
