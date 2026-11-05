@@ -73,6 +73,22 @@ BANNED_TICKERS = {
     "SOXL", "SOXS", "TNA", "TZA", "LABU", "LABD", "UVXY", "SVXY", "VXX", "TSLL", "NVDL",
 }
 
+# The vibes playbook (docs/vibes-playbook.md)
+CONVICTION = {"mild": 0.05, "firm": 0.10, "strong": 0.15, "total": 0.20}  # share of NAV per buy
+SELL_SIZES = {"trim": 0.5, "exit": 1.0}
+TRADE_KINDS = ("direct", "sector", "leap")
+MAX_LEAPS_PER_DAY = 2
+VERDICTS = ("intact", "strengthened", "weakened", "dead")
+FADING_DAYS = 15  # trading days without a supporting headline
+SIZE_ROUNDING = 100  # dollars round down to this
+# Most cash allowed in each mood once the first week is over (the 30% rule stays the hard limit).
+MOOD_CASH_CEILING = {"Doom": 0.30, "Nervous": 0.20, "Unbothered": 0.10, "Optimistic": 0.05, "Euphoric": 0.05}
+SECTOR_FUNDS = {
+    "XLK": "tech", "XLF": "financials", "XLE": "energy", "XLV": "health care",
+    "XLY": "consumer discretionary", "XLP": "consumer staples", "XLI": "industrials",
+    "XLB": "materials", "XLU": "utilities", "XLRE": "real estate", "XLC": "communication", "GLD": "gold",
+}
+
 MOOD_BANDS = [
     # (label, low inclusive, high exclusive, color)
     ("Doom", -1.0, -0.6, "#2B2B2B"),

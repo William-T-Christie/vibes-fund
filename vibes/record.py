@@ -13,9 +13,10 @@ from datetime import date, datetime, timedelta, timezone
 
 from . import clock, config, metrics, store
 from .alpaca import Alpaca
+from .validate import cash_target
 
 
-def _first_buy_dates(trades: list[dict]) -> dict[str, str]:
+def first_buy_dates(trades: list[dict]) -> dict[str, str]:
     """Date the current position in each name was opened (resets after a full close)."""
     held: dict[str, float] = {}
     opened: dict[str, str] = {}
@@ -107,7 +108,7 @@ def run(client: Alpaca, now: datetime | None = None) -> dict:
     positions = client.positions()
     trades_doc = store.read("trades.json", {"trades": []})
     trades = trades_doc["trades"]
-    opened = _first_buy_dates(trades)
+    opened = first_buy_dates(trades)
 
     # Benchmark: SPY daily bars and dividends since inception.
     bars = client.daily_bars([config.BENCHMARK], start=inception, end=day)[config.BENCHMARK]
@@ -169,6 +170,29 @@ def run(client: Alpaca, now: datetime | None = None) -> dict:
                 closes[sym] = bs[-1]["c"]
     metrics.update_outcomes(trades, closes)
 
+    # Mood cash target: did the Chairman keep the cash his mood allows?
+    today_log = store.read_log(day, "decision.json") or {}
+    cash_check = None
+    if day in written and today_log.get("decision"):
+        target = cash_target(today_log["decision"]["mood"]["score"], today_log.get("day_number", 1))
+        adj_now = nav["rows"][-1]["nav"]
+        cash_pct = float(acct["cash"]) / adj_now if adj_now else 0.0
+        if target is not None:
+            on = cash_pct <= target + 0.005
+            band = today_log.get("mood_band")
+            cash_check = {"cash_pct": round(100 * cash_pct, 1), "target_pct": round(100 * target, 1), "on_target": on}
+            nav["rows"][-1].update(cash_pct=cash_check["cash_pct"], cash_target_pct=cash_check["target_pct"])
+            if not on:
+                trades.append({
+                    "date": day, "action": "note", "ticker": "", "status": "note", "dollars": 0.0, "qty": 0.0,
+                    "fill_price": None, "outcome_pct": None, "link": None,
+                    "reason": f"The Chairman felt {band} and remained {100 * cash_pct:.0f}% in cash.",
+                })
+    verdicts = {}
+    for v in (today_log.get("decision") or {}).get("book", []) or []:
+        if isinstance(v, dict):
+            verdicts[str(v.get("ticker", "")).upper()] = v
+
     reasons = {}
     for t in metrics.fills(trades):
         if t["action"] == "buy":
@@ -186,6 +210,8 @@ def run(client: Alpaca, now: datetime | None = None) -> dict:
             "gain_pct": round(100 * (mv - cost) / cost, 2) if cost else None,
             "date_bought": opened.get(p["symbol"]),
             "buy_reason": reasons.get(p["symbol"]),
+            "verdict": (verdicts.get(p["symbol"]) or {}).get("verdict"),
+            "verdict_note": (verdicts.get(p["symbol"]) or {}).get("note"),
         })
 
     store.write("nav.json", nav)
@@ -194,6 +220,7 @@ def run(client: Alpaca, now: datetime | None = None) -> dict:
     summary = metrics.summarize(nav["rows"], trades, holdings, as_of=now.isoformat())
     old = store.read("summary.json", {})
     summary["mood"] = old.get("mood")
+    summary["cash_vs_mood"] = cash_check
     summary["mode"] = state.get("mode", "dry_run")
     summary["fund_name"] = config.FUND_NAME
     summary["last_updated"] = now.isoformat()

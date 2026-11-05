@@ -19,7 +19,7 @@ from . import config
 
 DECISION_SCHEMA = {
     "type": "object",
-    "required": ["mood", "summary", "trades"],
+    "required": ["mood", "summary", "book", "trades"],
     "properties": {
         "mood": {
             "type": "object",
@@ -27,15 +27,30 @@ DECISION_SCHEMA = {
             "properties": {"label": {"type": "string"}, "score": {"type": "number"}},
         },
         "summary": {"type": "string"},
+        "book": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["ticker", "verdict"],
+                "properties": {
+                    "ticker": {"type": "string"},
+                    "verdict": {"type": "string", "enum": list(config.VERDICTS)},
+                    "note": {"type": "string"},
+                    "headline_id": {"type": "string"},
+                },
+            },
+        },
         "trades": {
             "type": "array",
             "items": {
                 "type": "object",
-                "required": ["action", "ticker", "dollars", "reason", "headline_id"],
+                "required": ["action", "ticker", "kind", "reason", "headline_id"],
                 "properties": {
                     "action": {"type": "string", "enum": ["buy", "sell"]},
                     "ticker": {"type": "string"},
-                    "dollars": {"type": "number"},
+                    "kind": {"type": "string", "enum": list(config.TRADE_KINDS)},
+                    "conviction": {"type": "string", "enum": list(config.CONVICTION)},
+                    "size": {"type": "string", "enum": list(config.SELL_SIZES)},
                     "reason": {"type": "string"},
                     "headline_id": {"type": "string"},
                 },
@@ -62,11 +77,18 @@ def build_prompt(*, date: str, day_number: int, book: dict, headlines: list[dict
     nav = book["nav"]
     cash = book["cash"]
     if book["positions"]:
-        rows = ["| Ticker | Value | Weight | Gain since bought |", "| --- | --- | --- | --- |"]
+        rows = ["| Ticker | Value | Weight | Gain | Held | Last support | Thesis |",
+                "| --- | --- | --- | --- | --- | --- | --- |"]
         for p in book["positions"]:
+            held = p.get("days_held")
+            since = p.get("days_since_support")
+            support = "unknown" if since is None else ("today" if since == 0 else f"{since} days ago")
+            if p.get("fading"):
+                support += " (FADING)"
             rows.append(
                 f"| {p['ticker']} | ${p['market_value']:,.0f} | {100 * p['market_value'] / nav:.1f}% "
-                f"| {p['gain_pct']:+.1f}% |"
+                f"| {p['gain_pct']:+.1f}% | {'?' if held is None else f'{held} days'} | {support} "
+                f"| {p.get('thesis') or 'Bought before the fund kept notes.'} |"
             )
         holdings_table = "\n".join(rows)
     else:
@@ -80,12 +102,18 @@ def build_prompt(*, date: str, day_number: int, book: dict, headlines: list[dict
         fund_name=config.FUND_NAME,
         date=date,
         day_number=day_number,
+        first_week_note=(
+            f" This is the first week: build toward {config.MIN_HOLDINGS} holdings, with firm or strong convictions."
+            if day_number <= config.FIRST_WEEK_DAYS else ""
+        ),
+        fading_days=config.FADING_DAYS,
+        max_leaps=config.MAX_LEAPS_PER_DAY,
+        sector_funds=", ".join(f"{k} {v}" for k, v in config.SECTOR_FUNDS.items()),
         max_trades=config.MAX_TRADES_PER_DAY,
         min_holdings=config.MIN_HOLDINGS,
         max_holdings=config.MAX_HOLDINGS,
         position_cap_pct=int(config.POSITION_CAP * 100),
         max_cash_pct=int(config.MAX_CASH_NORMAL * 100),
-        min_order=config.MIN_ORDER_DOLLARS,
         max_reason=config.MAX_REASON_CHARS,
         nav=nav,
         cash=cash,
@@ -153,6 +181,9 @@ def _check_shape(obj: dict) -> dict:
         raise DecisionError("missing mood score")
     if not isinstance(obj.get("trades"), list):
         raise DecisionError("trades must be a list")
+    if not isinstance(obj.get("book", []), list):
+        raise DecisionError("book must be a list")
+    obj.setdefault("book", [])
     obj.setdefault("summary", "")
     obj.setdefault("holds", "")
     return obj

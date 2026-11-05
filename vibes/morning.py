@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from datetime import datetime, time, timedelta, timezone
 
-from . import clock, config, decide as decide_mod, fetch_news, store, trade as trade_mod, validate as validate_mod
+from . import clock, config, metrics, decide as decide_mod, fetch_news, store, trade as trade_mod, validate as validate_mod
 from .alpaca import Alpaca
 
 QUIET = {
@@ -55,6 +55,31 @@ def book_from_alpaca(client: Alpaca) -> dict:
     return {"nav": nav, "cash": float(acct["cash"]), "positions": positions}
 
 
+def enrich_positions(positions: list[dict], trades: list[dict], state: dict, nav_rows: list[dict], day: str) -> None:
+    """Give each holding its thesis, days held and last support, for the book review."""
+    from .record import first_buy_dates
+
+    opened = first_buy_dates(trades)
+    thesis = {}
+    for t in metrics.fills(trades):
+        if t["action"] == "buy":
+            thesis[t["ticker"]] = t["reason"]
+    support = state.get("last_support", {})
+    dates = [r["date"] for r in nav_rows]
+    for p in positions:
+        t = p["ticker"]
+        p["thesis"] = thesis.get(t)
+        o = opened.get(t)
+        p["days_held"] = None if not o else sum(1 for d in dates if o <= d < day)
+        s = support.get(t) or o
+        if not s:
+            p["days_since_support"], p["fading"] = None, False
+            continue
+        since = 0 if s >= day else 1 + sum(1 for d in dates if s < d < day)
+        p["days_since_support"] = since
+        p["fading"] = since >= config.FADING_DAYS
+
+
 def prepare(client: Alpaca, now: datetime | None = None) -> dict:
     now = now or clock.now_et()
     day = clock.today_et(now)
@@ -95,12 +120,14 @@ def prepare(client: Alpaca, now: datetime | None = None) -> dict:
     state = store.fund_state()
     nav_rows = store.read("nav.json", {"rows": []})["rows"]
     trades = store.read("trades.json", {"trades": []})["trades"]
+    book = book_from_alpaca(client)
+    enrich_positions(book["positions"], trades, state, nav_rows, day)
     out = {
         "date": day,
         "proceed": True,
         "started_at": now.isoformat(),
         "day_number": trading_day_number(day, nav_rows, state.get("inception")),
-        "book": book_from_alpaca(client),
+        "book": book,
         "headlines": headlines,
         "recent_reasons": [t["reason"] for t in trades[-5:]],
     }
@@ -166,14 +193,22 @@ def run_trades(client: Alpaca, *, sleep=None) -> dict:
     if store.read_log(day, "orders.json") is not None:
         return {"status": "already_traded", "message": QUIET["already_traded"]}
 
-    tickers = sorted({str(t.get("ticker", "")).upper() for t in decision["trades"] if isinstance(t, dict)} - {""})
+    named = [t for t in decision["trades"] if isinstance(t, dict)]
+    named += [v for v in decision.get("book", []) if isinstance(v, dict) and v.get("verdict") == "dead"]
+    tickers = sorted({str(t.get("ticker", "")).upper() for t in named} - {""})
     assets = {t: client.asset(t) for t in tickers if validate_mod.TICKER_RE.match(t)}
     liq = trade_mod.liquidity(client, [t for t in tickers if assets.get(t)], day)
     links = {h["id"]: h["link"] for h in work["headlines"]}
     state = store.fund_state()
     result = validate_mod.validate(decision, book=work["book"], day_number=work["day_number"], assets=assets,
                                    liquidity=liq, headline_links=links, paused_names=state.get("paused_names"))
-    store.write_log(day, "validation.json", result.to_json())
+    target = validate_mod.cash_target(decision["mood"]["score"], work["day_number"])
+    nav = work["book"]["nav"]
+    store.write_log(day, "validation.json", {
+        **result.to_json(),
+        "mood_cash_target_pct": None if target is None else round(100 * target, 1),
+        "cash_after_pct_estimate": round(100 * result.cash_after / nav, 1) if nav else None,
+    })
 
     kw = {"sleep": sleep} if sleep else {}
     records = trade_mod.execute(client, day, result.accepted, **kw) if result.accepted else []
@@ -191,6 +226,12 @@ def run_trades(client: Alpaca, *, sleep=None) -> dict:
             "status": r["status"],
             "reason": r["reason"],
             "link": r["headline_link"],
+            "kind": r.get("kind"),
+            "conviction": r.get("conviction"),
+            "size": r.get("size"),
+            "shrunk": bool(r.get("shrunk")),
+            "from_verdict": bool(r.get("from_verdict")),
+            "broker_message": r.get("broker_message"),
             "outcome_pct": None,
         })
     for d in result.declined:
@@ -199,10 +240,12 @@ def run_trades(client: Alpaca, *, sleep=None) -> dict:
             "date": day, "action": str(t.get("action", "")).lower(), "ticker": str(t.get("ticker", "")).upper(),
             "dollars": 0.0, "fill_price": None, "qty": 0.0, "status": "declined",
             "reason": str(t.get("reason", "")), "link": links.get(str(t.get("headline_id", ""))),
+            "kind": t.get("kind"), "conviction": t.get("conviction"), "size": t.get("size"),
             "compliance": d["reason"], "outcome_pct": None,
         })
     store.write("trades.json", trades)
 
+    update_support(state, day, decision, work["book"]["positions"], records)
     filled_notional = sum(r.get("filled_dollars", 0.0) for r in records if r.get("filled_qty"))
     if filled_notional:
         state["slippage_reserve_total"] = round(
@@ -212,3 +255,23 @@ def run_trades(client: Alpaca, *, sleep=None) -> dict:
     store.save_fund_state(state)
     return {"status": "traded", "accepted": len(result.accepted), "declined": len(result.declined),
             "filled": sum(1 for r in records if r.get("filled_qty"))}
+
+
+def update_support(state: dict, day: str, decision: dict, positions: list[dict], records: list[dict]) -> None:
+    """A holding's last support is the last day it was bought, strengthened, or reaffirmed while fading."""
+    support = state.setdefault("last_support", {})
+    fading = {p["ticker"] for p in positions if p.get("fading")}
+    for v in decision.get("book", []) or []:
+        if not isinstance(v, dict):
+            continue
+        tk = str(v.get("ticker", "")).upper()
+        verdict, note = v.get("verdict"), str(v.get("note") or "").strip()
+        if verdict == "strengthened" or (tk in fading and verdict in ("intact", "weakened") and note):
+            support[tk] = day
+    for r in records:
+        if not r.get("filled_qty"):
+            continue
+        if r["action"] == "buy":
+            support[r["ticker"]] = day
+        elif r.get("close_all"):
+            support.pop(r["ticker"], None)

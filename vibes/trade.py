@@ -13,6 +13,7 @@ from typing import Callable
 
 from . import config
 from .alpaca import Alpaca, AlpacaError
+from .validate import shrink_to_cash
 
 TERMINAL = {"filled", "canceled", "expired", "rejected", "done_for_day"}
 
@@ -100,10 +101,13 @@ def execute(client: Alpaca, day: str, accepted: list[dict], *, sleep: Callable[[
     cash = float(client.account()["cash"])
     placed = []
     for t in buys:
-        if t["dollars"] > cash:
+        fit = shrink_to_cash(t["dollars"], cash)
+        if fit is None:
             records.append({**t, "status": "declined",
                             "broker_message": f"Only ${cash:,.0f} in cash after the sells filled."})
             continue
+        if fit < t["dollars"]:
+            t = {**t, "dollars": fit, "shrunk": True}
         o, err = _submit(client, day, t)
         if o:
             cash -= t["dollars"]

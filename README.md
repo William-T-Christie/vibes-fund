@@ -47,6 +47,7 @@ Choices the spec left open, made in code:
 | `docs/name-theme-and-visual-design.md` | Naming, the four theme directions, the mood system, the cast, design elements, copy and voice samples |
 | `docs/not-ai-design-rules.md` | The rulebook every design follows so nothing looks AI generated, with the A and B direction specs and a pre ship checklist |
 | `docs/design-rules-summary.md` | Short version of the rules plus later additions: halftone everywhere, the Chairman's house portrait, the illustration review process |
+| `docs/vibes-playbook.md` | How the Chairman turns headlines into trades: mood sets cash, conviction sizing, trade kinds, daily verdicts, when to sell. Approved and built |
 | `docs/decision-log.md` | Every decision made so far and what is still open. Read this first; it overrides older wording in the docs above |
 | `docs/references.md` | The references and sources behind the design and the plan |
 | `art/chairman/` | The Chairman's house portrait (SVG and previews) and the source that generates it |

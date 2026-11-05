@@ -71,6 +71,42 @@ def check_liquidity(ticker: str, dollars: float, liq: dict | None) -> str | None
     return None
 
 
+PRICE_ONLY_RE = re.compile(
+    r"\b(share price|stock price|its price|the price|shares)\b[^.]{0,40}\b(fell|fallen|dropped|drop|slid|slumped|"
+    r"plunged|tumbled|declined|down|cheap|cheaper|dipped|dip)\b",
+    re.I,
+)
+CONVICTION_RANK = {k: i for i, k in enumerate(config.CONVICTION)}
+
+
+def size_dollars(conviction: str, nav: float) -> float:
+    raw = config.CONVICTION[conviction] * nav
+    return float(int(raw // config.SIZE_ROUNDING) * config.SIZE_ROUNDING)
+
+
+def shrink_to_cash(dollars: float, cash: float) -> float | None:
+    """A buy bigger than the cash left shrinks to fit, rounded down, if that is still at least the minimum."""
+    if dollars <= cash:
+        return dollars
+    fit = float(int(cash // config.SIZE_ROUNDING) * config.SIZE_ROUNDING)
+    return fit if fit >= config.MIN_ORDER_DOLLARS else None
+
+
+def _dead_exits(decision: dict, held: dict, trades: list[dict]) -> list[dict]:
+    """A Dead verdict always means Exit. If Claude forgot to list the exit, add it from the verdict."""
+    selling = {str(t.get("ticker", "")).upper() for t in trades if t.get("action") == "sell"}
+    out = []
+    for v in decision.get("book", []) or []:
+        if not isinstance(v, dict):
+            continue
+        tk = str(v.get("ticker", "")).upper()
+        if v.get("verdict") == "dead" and tk in held and tk not in selling:
+            out.append({"action": "sell", "ticker": tk, "kind": "direct", "size": "exit",
+                        "reason": str(v.get("note") or "The thesis has died, and the fund attended the funeral."),
+                        "headline_id": str(v.get("headline_id", "")), "from_verdict": True})
+    return out
+
+
 def validate(
     decision: dict,
     *,
@@ -81,29 +117,56 @@ def validate(
     headline_links: dict[str, str],
     paused_names: list[str] | None = None,
 ) -> Result:
+    """Check every trade. The holdings minimum counts new names bought in the same run, via a second pass."""
+    first = _validate(decision, book=book, day_number=day_number, assets=assets, liquidity=liquidity,
+                      headline_links=headline_links, paused_names=paused_names, new_names_credit=0)
+    blocked = [d for d in first.declined if d["reason"].startswith("Selling all of")]
+    if not blocked:
+        return first
+    held = {p["ticker"] for p in book["positions"]}
+    credit = sum(1 for t in first.accepted if t["action"] == "buy" and t["ticker"] not in held)
+    if not credit:
+        return first
+    # Exits only add cash and free slots, so every buy accepted in the first pass is accepted again.
+    return _validate(decision, book=book, day_number=day_number, assets=assets, liquidity=liquidity,
+                     headline_links=headline_links, paused_names=paused_names, new_names_credit=credit)
+
+
+def _validate(
+    decision: dict,
+    *,
+    book: dict,
+    day_number: int,
+    assets: dict[str, dict | None],
+    liquidity: dict[str, dict],
+    headline_links: dict[str, str],
+    paused_names: list[str] | None,
+    new_names_credit: int,
+) -> Result:
     nav = float(book["nav"])
     cash = float(book["cash"])
     held = {p["ticker"]: dict(p) for p in book["positions"]}
     paused = set(paused_names or [])
     res = Result()
     seen: set[tuple[str, str]] = set()
+    leaps = 0
 
     def decline(trade: dict, why: str) -> None:
         res.declined.append({"trade": trade, "reason": why})
 
     raw = [t for t in decision.get("trades", []) if isinstance(t, dict)]
-    # Sells first so their proceeds can fund the buys in the same run.
-    ordered = [t for t in raw if t.get("action") == "sell"] + [t for t in raw if t.get("action") != "sell"]
+    raw += _dead_exits(decision, held, raw)
+    sells = [t for t in raw if t.get("action") == "sell"]
+    # Buys strongest first, so if cash runs short it is the mildest idea that shrinks.
+    buys = sorted((t for t in raw if t.get("action") != "sell"),
+                  key=lambda t: -CONVICTION_RANK.get(str(t.get("conviction", "")).lower(), -1))
 
-    for t in ordered:
+    for t in sells + buys:
         action = str(t.get("action", "")).lower()
         ticker = str(t.get("ticker", "")).upper().strip()
         reason = str(t.get("reason", "")).strip()
+        kind = str(t.get("kind", "")).lower()
         hid = str(t.get("headline_id", ""))
-        try:
-            dollars = float(round(float(t.get("dollars", 0))))
-        except (TypeError, ValueError):
-            dollars = 0.0
 
         if len(res.accepted) >= config.MAX_TRADES_PER_DAY:
             decline(t, f"Trade limit of {config.MAX_TRADES_PER_DAY} a day reached.")
@@ -117,6 +180,12 @@ def validate(
         if (ticker, action) in seen:
             decline(t, f"Already {action}ing {ticker} today.")
             continue
+        if kind not in config.TRADE_KINDS:
+            decline(t, f"'{kind}' is not a direct, sector or leap trade.")
+            continue
+        if kind == "leap" and leaps >= config.MAX_LEAPS_PER_DAY:
+            decline(t, f"Already {config.MAX_LEAPS_PER_DAY} leaps today. The fund must keep one foot on the ground.")
+            continue
         if not reason:
             decline(t, "No reason given. Compliance requires at least a feeling.")
             continue
@@ -125,6 +194,9 @@ def validate(
             continue
         if not _one_sentence(reason):
             decline(t, "Reason is more than one sentence.")
+            continue
+        if PRICE_ONLY_RE.search(reason):
+            decline(t, "A falling price is not news. The fund trades on vibes.")
             continue
         link = headline_links.get(hid)
         if not link:
@@ -135,37 +207,45 @@ def validate(
             continue
 
         if action == "sell":
+            size = str(t.get("size", "")).lower()
             pos = held.get(ticker)
             if not pos:
                 decline(t, f"The fund does not hold {ticker}.")
                 continue
+            if size not in config.SELL_SIZES:
+                decline(t, f"'{size}' is not trim or exit.")
+                continue
             value = float(pos["market_value"])
-            if dollars > value + 0.5:
-                decline(t, f"Sell of ${dollars:,.0f} is more than the ${value:,.0f} held.")
+            close_all = size == "exit"
+            dollars = value if close_all else round(value * config.SELL_SIZES["trim"], 2)
+            if not close_all and dollars < config.MIN_ORDER_DOLLARS:
+                decline(t, f"Half of {ticker} is under the ${config.MIN_ORDER_DOLLARS:,.0f} minimum. Exit or hold.")
                 continue
-            close_all = dollars >= config.FULL_CLOSE_THRESHOLD * value
-            if dollars < config.MIN_ORDER_DOLLARS and not close_all:
-                decline(t, f"Under the ${config.MIN_ORDER_DOLLARS:,.0f} minimum.")
-                continue
-            if close_all and day_number > config.FIRST_WEEK_DAYS and len(held) - 1 < config.MIN_HOLDINGS:
+            after = len(held) - 1 + new_names_credit
+            if close_all and day_number > config.FIRST_WEEK_DAYS and \
+                    after < config.MIN_HOLDINGS and after < len(book["positions"]):
                 decline(t, f"Selling all of {ticker} would leave fewer than {config.MIN_HOLDINGS} holdings.")
                 continue
             why = check_liquidity(ticker, dollars, liquidity.get(ticker))
             if why:
                 decline(t, why)
                 continue
-            proceeds = value if close_all else dollars
-            cash += proceeds
+            cash += dollars
             if close_all:
                 held.pop(ticker)
             else:
                 pos["market_value"] = value - dollars
             res.accepted.append({
-                "action": "sell", "ticker": ticker, "dollars": round(proceeds, 2),
-                "close_all": close_all, "qty": pos["qty"] if close_all else None,
-                "reason": reason, "headline_link": link,
+                "action": "sell", "ticker": ticker, "dollars": round(dollars, 2), "size": size, "kind": kind,
+                "conviction": None, "close_all": close_all, "qty": pos["qty"] if close_all else None,
+                "reason": reason, "headline_link": link, "from_verdict": bool(t.get("from_verdict")),
             })
         else:
+            conviction = str(t.get("conviction", "")).lower()
+            if conviction not in config.CONVICTION:
+                decline(t, f"'{conviction}' is not mild, firm, strong or total.")
+                continue
+            dollars = size_dollars(conviction, nav)
             if dollars < config.MIN_ORDER_DOLLARS:
                 decline(t, f"Under the ${config.MIN_ORDER_DOLLARS:,.0f} minimum.")
                 continue
@@ -173,32 +253,43 @@ def validate(
             if why:
                 decline(t, why)
                 continue
-            why = check_liquidity(ticker, dollars, liquidity.get(ticker))
-            if why:
-                decline(t, why)
-                continue
-            if dollars > cash:
-                decline(t, f"${dollars:,.0f} is more than the ${cash:,.0f} in cash. The fund does not borrow.")
-                continue
             existing = float(held.get(ticker, {}).get("market_value", 0.0))
             if existing + dollars > config.POSITION_CAP * nav + 0.5:
                 decline(t, f"{ticker} would be over {int(config.POSITION_CAP * 100)}% of the fund.")
                 continue
             if ticker not in held and len(held) + 1 > config.MAX_HOLDINGS:
-                decline(t, f"A new name would take the fund past {config.MAX_HOLDINGS} holdings.")
+                decline(t, f"A new name would take the fund past {config.MAX_HOLDINGS} holdings. Exit something first.")
                 continue
-            cash -= dollars
+            fit = shrink_to_cash(dollars, cash)
+            if fit is None:
+                decline(t, f"Only ${cash:,.0f} left in cash. The fund does not borrow.")
+                continue
+            why = check_liquidity(ticker, fit, liquidity.get(ticker))
+            if why:
+                decline(t, why)
+                continue
+            cash -= fit
             if ticker in held:
-                held[ticker]["market_value"] = existing + dollars
+                held[ticker]["market_value"] = existing + fit
             else:
-                held[ticker] = {"ticker": ticker, "market_value": dollars, "qty": None}
+                held[ticker] = {"ticker": ticker, "market_value": fit, "qty": None}
             res.accepted.append({
-                "action": "buy", "ticker": ticker, "dollars": dollars,
-                "close_all": False, "qty": None, "reason": reason, "headline_link": link,
+                "action": "buy", "ticker": ticker, "dollars": fit, "size": None, "kind": kind,
+                "conviction": conviction, "shrunk": fit < dollars, "close_all": False, "qty": None,
+                "reason": reason, "headline_link": link, "from_verdict": False,
             })
+        if kind == "leap":
+            leaps += 1
         seen.add((ticker, action))
 
     res.cash_after = cash
     res.holdings_after = len(held)
     res.defensive = nav > 0 and cash / nav > config.MAX_CASH_NORMAL
     return res
+
+
+def cash_target(mood_score: float | None, day_number: int) -> float | None:
+    """Most cash the mood allows, or None during the first week or without a mood."""
+    if mood_score is None or day_number <= config.FIRST_WEEK_DAYS:
+        return None
+    return config.MOOD_CASH_CEILING[config.mood_band(mood_score)[0]]

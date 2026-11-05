@@ -23,6 +23,11 @@ Snapshot as of Nov 5, 2026. Where this log and an older doc disagree, this log i
   - Paper keys only.
 - Development timelines are not estimated. Building is done with Claude Code, not by hand.
 
+## Vibes playbook
+
+- Approved Nov 5 and built (prompt version 2026-11-05.2): mood sets cash, code sizes trades from a conviction level (Mild 5%, Firm 10%, Strong 15%, Total 20%), sells are Trim or Exit, trades are labeled Direct, Sector or Leap (at most 2 leaps a day), every holding gets a daily verdict, and a holding with no supporting headline for 15 trading days must be reaffirmed or trimmed.
+- Never sells on price alone; Compliance declines reasons about a falling share price.
+
 ## Name
 
 - The finalists are **Mood Ring Capital** and **Sentimental Value Partners**.
@@ -44,7 +49,8 @@ Snapshot as of Nov 5, 2026. Where this log and an older doc disagree, this log i
 
 ## Mood system
 
-- There is one mood per day: a score from -1 to +1 that Claude returns with its trades. It is display only and never drives trades.
+- There is one mood per day: a score from -1 to +1 that Claude returns with its trades.
+- Changed Nov 5: the mood now sets how much cash the fund may keep once the first week is over (Doom 30%, Nervous 20%, Unbothered 10%, Optimistic and Euphoric 5%). Code can't force buys, so a miss is printed in the trade log. See `docs/vibes-playbook.md`.
 - The score falls into one of five bands:
 
 | Band | Score | Color |
