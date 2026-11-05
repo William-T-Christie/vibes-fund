@@ -1,0 +1,20 @@
+# Secrets never live in this repo. GitHub Actions encrypted secrets only.
+.env
+.env.*
+*.pem
+*.key
+
+# Scratch work passed between workflow steps (holds headline text, never committed)
+.work/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# OS
+.DS_Store

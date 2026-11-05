@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mood Ring Capital, daily report</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,300;0,400;0,700;0,900;1,400&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F3EE}
+a{color:#161513;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}a:hover{text-decoration-thickness:3px}
+</style>
+</helmet>
+<div style="background: #F4F3EE; color: #161513; font-family: 'Chivo', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.5; font-variant-numeric: tabular-nums">
+<div style="max-width: 1280px; margin: 0 auto; padding: 48px 24px 96px; display: flex; flex-direction: column; gap: 64px">
+
+<header style="display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px">
+<div style="display: flex; align-items: center; gap: 16px">
+<svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="17" fill="none" stroke="{{accent}}" stroke-width="10"></circle></svg>
+<span style="font-weight: 900; font-size: 32px; letter-spacing: -1px; line-height: 1">Mood Ring Capital</span>
+</div>
+<nav aria-label="Report sections" style="display: flex; flex-wrap: wrap; gap: 32px; font-weight: 700">
+<a href="#">Highlights</a><a href="#">Investments</a><a href="#">Transactions</a><a href="#">Letters</a><a href="#">Friday show</a>
+</nav>
+</div>
+<div style="height: 8px; background: #161513"></div>
+<p style="margin: 0">Daily report for Thursday, November 5, 2026. All figures are sample data for design review.</p>
+</header>
+
+<section style="display: flex; flex-wrap: wrap; gap: 48px; align-items: center">
+<figure style="margin: 0; flex: 1 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<svg viewBox="0 0 600 600" width="100%" role="img" aria-label="A large ring printed in today's mood ink, {{band}}">
+<defs>
+<pattern id="a2-screen" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(15)"><circle cx="3.5" cy="3.5" r="1.25" fill="#F4F3EE"></circle></pattern>
+</defs>
+<circle cx="300" cy="300" r="220" fill="none" stroke="{{accent}}" stroke-width="120"></circle>
+<circle cx="300" cy="300" r="220" fill="none" stroke="url(#a2-screen)" stroke-width="120"></circle>
+<circle cx="303" cy="297" r="281" fill="none" stroke="#161513" stroke-width="1"></circle>
+<circle cx="303" cy="297" r="159" fill="none" stroke="#161513" stroke-width="1"></circle>
+</svg>
+<figcaption style="font-size: 13px; max-width: 48ch">Today's ink is {{bandLower}}. The report is reprinted in a new color whenever the fund's mood changes.</figcaption>
+</figure>
+
+<div style="flex: 1 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+<h1 style="margin: 0; font-weight: 700; font-size: 32px; line-height: 1.15; letter-spacing: -0.5px">Are vibes beating the S&amp;P 500?</h1>
+<div style="font-weight: 900; font-size: 200px; line-height: 0.8; letter-spacing: -10px; margin-left: -8px">No.</div>
+<div style="display: flex; flex-wrap: wrap; gap: 48px">
+<div style="display: flex; flex-direction: column">
+<span style="font-weight: 900; font-size: 64px; line-height: 1; letter-spacing: -2px">+3.1%</span>
+<span>The fund, since August 11</span>
+</div>
+<div style="display: flex; flex-direction: column">
+<span style="font-weight: 300; font-size: 64px; line-height: 1; letter-spacing: -2px">+4.9%</span>
+<span>The S&amp;P 500, same period</span>
+</div>
+</div>
+<p style="margin: 0; font-size: 20px; line-height: 1.5; max-width: 34ch; text-wrap: pretty">The S&amp;P 500 retook the lead on Wednesday. Until then the fund had been ahead on 36 of 62 trading days, and on October 8 it was up 5.9%.</p>
+<p style="margin: 0; display: flex; align-items: center; gap: 16px"><span aria-hidden="true" style="width: 16px; height: 16px; flex: none; background: {{accent}}"></span><span>Today's mood is <b>{{band}}</b>, {{score}}. The manager calls it {{label}}.</span></p>
+</div>
+</section>
+
+<section style="display: flex; flex-wrap: wrap; gap: 24px; border-top: 1px solid #161513; padding-top: 24px">
+<div style="flex: 1 1 232px; min-width: 0">
+<h2 style="margin: 0; font-weight: 700; font-size: 32px; line-height: 1.15; letter-spacing: -0.5px">Highlights</h2>
+</div>
+<div style="flex: 999 1 640px; min-width: 0; overflow-x: auto">
+<div style="min-width: 560px">
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 160px 160px; gap: 24px; font-weight: 700; padding-bottom: 8px; border-bottom: 1px solid #161513">
+<span></span><span style="text-align: right">The fund</span><span style="text-align: right">S&amp;P 500</span>
+</div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 160px 160px; gap: 24px; padding: 16px 0; border-bottom: 1px solid #C9C7BF"><span>Value of $100,000 invested on August 11</span><span style="text-align: right; font-weight: 700">$103,100</span><span style="text-align: right">$104,900</span></div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 160px 160px; gap: 24px; padding: 16px 0; border-bottom: 1px solid #C9C7BF"><span>Return since August 11</span><span style="text-align: right; font-weight: 700">+3.1%</span><span style="text-align: right">+4.9%</span></div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 160px 160px; gap: 24px; padding: 16px 0; border-bottom: 1px solid #C9C7BF"><span>Return today</span><span style="text-align: right; font-weight: 700">+0.27%</span><span style="text-align: right">+0.41%</span></div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 160px 160px; gap: 24px; padding: 16px 0; border-bottom: 1px solid #C9C7BF"><span>Trading days in the lead</span><span style="text-align: right; font-weight: 700">36</span><span style="text-align: right">26</span></div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 160px 160px; gap: 24px; padding: 16px 0; border-bottom: 1px solid #C9C7BF"><span>Highest value, October 8</span><span style="text-align: right; font-weight: 700">$105,920</span><span></span></div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 160px 160px; gap: 24px; padding: 16px 0; border-bottom: 1px solid #C9C7BF"><span>Largest fall from a high</span><span style="text-align: right; font-weight: 700">2.9%</span><span></span></div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 160px 160px; gap: 24px; padding: 16px 0; border-bottom: 1px solid #C9C7BF"><span>Closed trades that made money</span><span style="text-align: right; font-weight: 700">54%</span><span></span></div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 160px 160px; gap: 24px; padding: 16px 0; border-bottom: 1px solid #161513"><span>Trades declined by compliance</span><span style="text-align: right; font-weight: 700">6 of 147</span><span></span></div>
+</div>
+</div>
+</section>
+
+<section style="display: flex; flex-wrap: wrap; gap: 24px; border-top: 1px solid #161513; padding-top: 24px">
+<div style="flex: 1 1 232px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+<h2 style="margin: 0; font-weight: 700; font-size: 32px; line-height: 1.15; letter-spacing: -0.5px">Value of $100,000</h2>
+<p style="margin: 0">The black line is the fund. The gray line is the same money in the S&amp;P 500.</p>
+<ol style="margin: 0; padding-left: 24px; display: flex; flex-direction: column; gap: 8px; font-size: 13px">
+<li>August 12. The fund sells its airline on its second day.</li>
+<li>October 8. The high point, up 5.9%.</li>
+<li>November 4. The S&amp;P 500 takes the lead.</li>
+</ol>
+</div>
+<div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+<svg viewBox="0 0 1000 285" width="100%" role="img" aria-label="Fund value against the S&amp;P 500 since August 11. The fund led from late August, peaked October 8 and fell behind November 4.">
+<g stroke="#D6D4CC" stroke-width="1">
+<line x1="60" y1="43" x2="980" y2="43"></line><line x1="60" y1="89" x2="980" y2="89"></line><line x1="60" y1="135" x2="980" y2="135"></line><line x1="60" y1="227" x2="980" y2="227"></line>
+</g>
+<line x1="60" y1="181" x2="980" y2="181" stroke="#161513" stroke-width="1"></line>
+<g font-family="Chivo, sans-serif" font-size="13" fill="#161513" text-anchor="end">
+<text x="52" y="47">$106K</text><text x="52" y="93">$104K</text><text x="52" y="139">$102K</text><text x="52" y="185">$100K</text><text x="52" y="231">$98K</text>
+</g>
+<g font-family="Chivo, sans-serif" font-size="13" fill="#161513">
+<text x="60" y="276">Aug 11</text><text x="286" y="276">Sep</text><text x="603" y="276">Oct</text><text x="935" y="276">Nov</text>
+</g>
+<g stroke="#161513" stroke-width="1"><line x1="60" y1="255" x2="60" y2="262"></line><line x1="286.2" y1="255" x2="286.2" y2="262"></line><line x1="603" y1="255" x2="603" y2="262"></line><line x1="934.8" y1="255" x2="934.8" y2="262"></line></g>
+<polyline fill="none" stroke="#9B9890" stroke-width="2" stroke-linejoin="round" points="60,181 75.1,171.2 90.2,174.4 105.2,171.7 120.3,165 135.4,162.1 150.5,157.5 165.6,160.1 180.7,154.2 195.7,160.3 210.8,158.8 225.9,151.1 241,148.7 256.1,143.2 271.1,139.6 286.2,130 301.3,131 316.4,132 331.5,133.6 346.6,135.3 361.6,132.1 376.7,123.1 391.8,125.1 406.9,122.9 422,126.4 437,132.5 452.1,133.3 467.2,123.4 482.3,127.5 497.4,129.4 512.5,128.7 527.5,126 542.6,128.8 557.7,127.5 572.8,122.9 587.9,120.5 603,114.9 618,114.7 633.1,117.2 648.2,117.9 663.3,117.8 678.4,108.7 693.4,100.8 708.5,100.4 723.6,106 738.7,109.1 753.8,113.6 768.9,109.7 783.9,99.9 799,90.6 814.1,81 829.2,83 844.3,85.6 859.3,92.7 874.4,95.5 889.5,93.6 904.6,96.3 919.7,99.1 934.8,89.8 949.8,87.9 964.9,78.2 980,68.3"></polyline>
+<polyline fill="none" stroke="#161513" stroke-width="3" stroke-linejoin="round" points="60,181 75.1,209.7 90.2,222.5 105.2,211 120.3,221.6 135.4,208.7 150.5,199.6 165.6,183.3 180.7,191.4 195.7,181.6 210.8,172.6 225.9,150.5 241,172.4 256.1,150.2 271.1,143.4 286.2,121.8 301.3,130 316.4,112.6 331.5,132.9 346.6,138 361.6,115 376.7,103.5 391.8,129 406.9,126.9 422,132.3 437,110.9 452.1,119.5 467.2,111.6 482.3,111.9 497.4,118.3 512.5,126.9 527.5,137.3 542.6,132.2 557.7,110.9 572.8,92 587.9,85.7 603,86.6 618,63.5 633.1,53.1 648.2,49.5 663.3,60 678.4,44.9 693.4,67.5 708.5,92 723.6,112.2 738.7,86 753.8,79.8 768.9,83.4 783.9,104.5 799,84.4 814.1,64.3 829.2,51.1 844.3,79.2 859.3,103.8 874.4,98.5 889.5,86.3 904.6,77.1 919.7,57.2 934.8,65.3 949.8,87.5 964.9,116.1 980,109.7"></polyline>
+<g font-family="Chivo, sans-serif" font-size="16" font-weight="900" fill="#161513">
+<text x="80" y="240">1</text><text x="672" y="32">2</text><text x="958" y="140">3</text>
+</g>
+</svg>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="font-weight: 700">The fund's mood, one square per trading day</span>
+<svg viewBox="0 0 919 24" width="100%" role="img" aria-label="Daily mood record from August 11 to today; today is {{band}}">
+<g transform="translate(-60,0)">
+<rect x="60.0" y="0" width="13.2" height="24" fill="#C98A1B"></rect><rect x="74.8" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="89.7" y="0" width="13.2" height="24" fill="#C98A1B"></rect><rect x="104.5" y="0" width="13.2" height="24" fill="#7B4FA8"></rect><rect x="119.4" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="134.2" y="0" width="13.2" height="24" fill="#2F6FA8"></rect><rect x="149.0" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="163.9" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="178.7" y="0" width="13.2" height="24" fill="#C98A1B"></rect><rect x="193.6" y="0" width="13.2" height="24" fill="#2F6FA8"></rect><rect x="208.4" y="0" width="13.2" height="24" fill="#C98A1B"></rect><rect x="223.2" y="0" width="13.2" height="24" fill="#7B4FA8"></rect><rect x="238.1" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="252.9" y="0" width="13.2" height="24" fill="#2F6FA8"></rect><rect x="267.8" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="282.6" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="297.4" y="0" width="13.2" height="24" fill="#C98A1B"></rect><rect x="312.3" y="0" width="13.2" height="24" fill="#7B4FA8"></rect><rect x="327.1" y="0" width="13.2" height="24" fill="#2B2B2B"></rect><rect x="342.0" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="356.8" y="0" width="13.2" height="24" fill="#7B4FA8"></rect><rect x="371.6" y="0" width="13.2" height="24" fill="#C98A1B"></rect><rect x="386.5" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="401.3" y="0" width="13.2" height="24" fill="#2F6FA8"></rect><rect x="416.2" y="0" width="13.2" height="24" fill="#2F6FA8"></rect><rect x="431.0" y="0" width="13.2" height="24" fill="#7B4FA8"></rect><rect x="445.8" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="460.7" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="475.5" y="0" width="13.2" height="24" fill="#C98A1B"></rect><rect x="490.4" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="505.2" y="0" width="13.2" height="24" fill="#2F6FA8"></rect><rect x="520.0" y="0" width="13.2" height="24" fill="#C98A1B"></rect><rect x="534.9" y="0" width="13.2" height="24" fill="#C98A1B"></rect><rect x="549.7" y="0" width="13.2" height="24" fill="#2F6FA8"></rect><rect x="564.6" y="0" width="13.2" height="24" fill="#7B4FA8"></rect><rect x="579.4" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="594.2" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="609.1" y="0" width="13.2" height="24" fill="#2F6FA8"></rect><rect x="623.9" y="0" width="13.2" height="24" fill="#2F6FA8"></rect><rect x="638.8" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="653.6" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="668.4" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="683.3" y="0" width="13.2" height="24" fill="#2B2B2B"></rect><rect x="698.1" y="0" width="13.2" height="24" fill="#C98A1B"></rect><rect x="713.0" y="0" width="13.2" height="24" fill="#2F6FA8"></rect><rect x="727.8" y="0" width="13.2" height="24" fill="#7B4FA8"></rect><rect x="742.6" y="0" width="13.2" height="24" fill="#2F6FA8"></rect><rect x="757.5" y="0" width="13.2" height="24" fill="#2F6FA8"></rect><rect x="772.3" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="787.2" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="802.0" y="0" width="13.2" height="24" fill="#2F6FA8"></rect><rect x="816.8" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="831.7" y="0" width="13.2" height="24" fill="#C98A1B"></rect><rect x="846.5" y="0" width="13.2" height="24" fill="#C98A1B"></rect><rect x="861.4" y="0" width="13.2" height="24" fill="#2F6FA8"></rect><rect x="876.2" y="0" width="13.2" height="24" fill="#7B4FA8"></rect><rect x="891.0" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="905.9" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="920.7" y="0" width="13.2" height="24" fill="#4F8A5B"></rect><rect x="935.6" y="0" width="13.2" height="24" fill="#2B2B2B"></rect><rect x="950.4" y="0" width="13.2" height="24" fill="#C98A1B"></rect>
+<rect x="965.2" y="0" width="13.2" height="24" fill="{{accent}}"></rect>
+</g>
+</svg>
+<div style="display: flex; flex-wrap: wrap; gap: 24px; font-size: 13px">
+<sc-for list="{{scale}}" as="sw" hint-placeholder-count="5">
+<span style="display: flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 13px; height: 13px; background: {{sw.c}}"></span>{{sw.name}}</span>
+</sc-for>
+</div>
+</div>
+</div>
+</section>
+
+<section style="display: flex; flex-wrap: wrap; gap: 24px; border-top: 1px solid #161513; padding-top: 24px">
+<div style="flex: 1 1 232px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-weight: 700; font-size: 32px; line-height: 1.15; letter-spacing: -0.5px">Investments</h2>
+<p style="margin: 0">Seven holdings and 7% in cash, with the reason each one was bought.</p>
+</div>
+<div style="flex: 999 1 640px; min-width: 0; overflow-x: auto">
+<div style="min-width: 600px">
+<div style="display: grid; grid-template-columns: 180px minmax(0, 1fr) 88px 88px; gap: 24px; font-weight: 700; padding-bottom: 8px; border-bottom: 1px solid #161513"><span>Holding</span><span>Bought because</span><span style="text-align: right">Weight</span><span style="text-align: right">Change</span></div>
+<div style="display: grid; grid-template-columns: 180px minmax(0, 1fr) 88px 88px; gap: 24px; padding: 16px 0; border-bottom: 1px solid #C9C7BF"><span style="font-weight: 700">Coffee chain</span><span>The lines were around the block in forty cities.</span><span style="text-align: right">18%</span><span style="text-align: right">+6.2%</span></div>
+<div style="display: grid; grid-template-columns: 180px minmax(0, 1fr) 88px 88px; gap: 24px; padding: 16px 0; border-bottom: 1px solid #C9C7BF"><span style="font-weight: 700">Chip designer</span><span>Every headline about it sounded excited.</span><span style="text-align: right">16%</span><span style="text-align: right">+9.8%</span></div>
+<div style="display: grid; grid-template-columns: 180px minmax(0, 1fr) 88px 88px; gap: 24px; padding: 16px 0; border-bottom: 1px solid #C9C7BF"><span style="font-weight: 700">Cereal maker</span><span>People are eating breakfast for dinner.</span><span style="text-align: right">15%</span><span style="text-align: right">−3.1%</span></div>
+<div style="display: grid; grid-template-columns: 180px minmax(0, 1fr) 88px 88px; gap: 24px; padding: 16px 0; border-bottom: 1px solid #C9C7BF"><span style="font-weight: 700">Regional bank</span><span>Its only headline all month was boring, which felt safe.</span><span style="text-align: right">14%</span><span style="text-align: right">+1.4%</span></div>
+<div style="display: grid; grid-template-columns: 180px minmax(0, 1fr) 88px 88px; gap: 24px; padding: 16px 0; border-bottom: 1px solid #C9C7BF"><span style="font-weight: 700">Sneaker brand</span><span>Marathon season.</span><span style="text-align: right">12%</span><span style="text-align: right">−0.6%</span></div>
+<div style="display: grid; grid-template-columns: 180px minmax(0, 1fr) 88px 88px; gap: 24px; padding: 16px 0; border-bottom: 1px solid #C9C7BF"><span style="font-weight: 700">Cruise line</span><span>Bookings are up for the winter.</span><span style="text-align: right">10%</span><span style="text-align: right">+4.0%</span></div>
+<div style="display: grid; grid-template-columns: 180px minmax(0, 1fr) 88px 88px; gap: 24px; padding: 16px 0; border-bottom: 1px solid #C9C7BF"><span style="font-weight: 700">Toy company</span><span>Holiday forecasts came out early and cheerful.</span><span style="text-align: right">8%</span><span style="text-align: right">−2.2%</span></div>
+<div style="display: grid; grid-template-columns: 180px minmax(0, 1fr) 88px 88px; gap: 24px; padding: 16px 0; border-bottom: 1px solid #161513"><span style="font-weight: 700">Cash</span><span></span><span style="text-align: right">7%</span><span></span></div>
+</div>
+</div>
+</section>
+
+<section style="display: flex; flex-wrap: wrap; gap: 24px; border-top: 1px solid #161513; padding-top: 24px">
+<div style="flex: 1 1 232px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-weight: 700; font-size: 32px; line-height: 1.15; letter-spacing: -0.5px">Transactions</h2>
+<p style="margin: 0"><a href="#">All 147 transactions</a></p>
+</div>
+<div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column">
+<div style="display: grid; grid-template-columns: 120px 88px minmax(0, 1fr); gap: 24px; padding: 16px 0; border-top: 1px solid #161513; border-bottom: 1px solid #C9C7BF"><span>November 5</span><span style="font-weight: 700">Bought</span><span>$12,000 of the coffee chain. Lines are long and the vibes are caffeinated.</span></div>
+<div style="display: grid; grid-template-columns: 120px 88px minmax(0, 1fr); gap: 24px; padding: 16px 0; border-bottom: 1px solid #C9C7BF"><span>November 5</span><span style="font-weight: 700">Sold</span><span>$9,500 of a streaming service, after three price increases were reported before breakfast.</span></div>
+<div style="display: grid; grid-template-columns: 120px 88px minmax(0, 1fr); gap: 24px; padding: 16px 0; border-bottom: 1px solid #C9C7BF"><span>November 4</span><span style="font-weight: 700">Declined</span><span><span style="text-decoration: line-through">$8,000 of a company the manager was confident about.</span> Compliance could not find it on any exchange, because it does not exist.</span></div>
+<div style="display: grid; grid-template-columns: 120px 88px minmax(0, 1fr); gap: 24px; padding: 16px 0; border-bottom: 1px solid #161513"><span>November 3</span><span style="font-weight: 700">Held</span><span>The news was loud but not convincing. The Chairman finished his tea.</span></div>
+</div>
+</section>
+
+<section style="display: flex; flex-wrap: wrap; gap: 24px; border-top: 1px solid #161513; padding-top: 24px">
+<div style="flex: 1 1 232px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-weight: 700; font-size: 32px; line-height: 1.15; letter-spacing: -0.5px">Letter to investors</h2>
+<p style="margin: 0">No. 12, October 30<br><a href="#">Earlier letters</a></p>
+</div>
+<div style="flex: 999 1 640px; min-width: 0">
+<div style="columns: 2 300px; column-gap: 48px; font-size: 20px; line-height: 1.55">
+<p style="margin: 0 0 24px">Dear investors,</p>
+<p style="margin: 0 0 24px">For most of the autumn your fund was ahead of the market, and on October 8 it was comfortably ahead. This week it is not.</p>
+<p style="margin: 0 0 24px">We have reviewed the situation and reached three conclusions. The coffee position is sound. The cereal position is a matter of faith. The market will come around.</p>
+<p style="margin: 0 0 24px">Our process is unchanged. We read the morning headlines, we consult our feelings, and we act before ten o'clock.</p>
+<p style="margin: 0">Yours faithfully,</p>
+<p style="margin: 0; font-weight: 700">Sir Peregrine Ashby</p>
+<p style="margin: 0">Chairman</p>
+</div>
+</div>
+</section>
+
+<section style="display: flex; flex-wrap: wrap; gap: 24px; border-top: 1px solid #161513; padding-top: 24px">
+<div style="flex: 1 1 232px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-weight: 700; font-size: 32px; line-height: 1.15; letter-spacing: -0.5px">The Friday show</h2>
+<p style="margin: 0">Barry Kessler from the desk explains the week. Not public until the character is approved.</p>
+</div>
+<div style="flex: 999 1 640px; min-width: 0; display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start">
+<div style="flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+<div style="aspect-ratio: 16 / 9; background: #161513; color: #F4F3EE; display: flex; flex-direction: column; justify-content: space-between; padding: 24px">
+<span style="font-size: 13px">Video still to come: the Broker at his desk</span>
+<button type="button" aria-label="Play episode 12" style="align-self: flex-start; display: flex; align-items: center; gap: 16px; background: none; border: 0; color: #F4F3EE; font-family: inherit; font-size: 20px; font-weight: 700; padding: 0; cursor: pointer">
+<svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="{{accent}}"></circle><path d="M19 14 L35 24 L19 34 Z" fill="#F4F3EE"></path></svg>
+Episode 12
+</button>
+</div>
+<span style="font-size: 13px">Captions on by default.</span>
+</div>
+<div style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column">
+<div style="display: grid; grid-template-columns: 40px minmax(0, 1fr) 48px; gap: 16px; padding: 16px 0; border-top: 1px solid #161513; border-bottom: 1px solid #C9C7BF"><span style="font-weight: 700">12</span><span>The Chairman Bought Cereal Again</span><span style="text-align: right">0:41</span></div>
+<div style="display: grid; grid-template-columns: 40px minmax(0, 1fr) 48px; gap: 16px; padding: 16px 0; border-bottom: 1px solid #C9C7BF"><span style="font-weight: 700">11</span><span>Up Two Points, Nobody Touch Anything</span><span style="text-align: right">0:38</span></div>
+<div style="display: grid; grid-template-columns: 40px minmax(0, 1fr) 48px; gap: 16px; padding: 16px 0; border-bottom: 1px solid #C9C7BF"><span style="font-weight: 700">10</span><span>Champagne Week</span><span style="text-align: right">0:44</span></div>
+<div style="display: grid; grid-template-columns: 40px minmax(0, 1fr) 48px; gap: 16px; padding: 16px 0; border-bottom: 1px solid #161513"><span style="font-weight: 700">9</span><span>We Are Not Panicking</span><span style="text-align: right">0:36</span></div>
+</div>
+</div>
+</section>
+
+<footer style="display: flex; flex-direction: column; gap: 24px">
+<div style="height: 8px; background: #161513"></div>
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+<div style="flex: 1 1 232px; min-width: 0; display: flex; align-items: center; gap: 16px">
+<svg width="32" height="32" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="17" fill="none" stroke="{{accent}}" stroke-width="10"></circle></svg>
+<span style="font-weight: 900; font-size: 20px; letter-spacing: -0.5px">Mood Ring Capital</span>
+</div>
+<div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<p style="margin: 0; font-size: 20px; font-weight: 700">Paper trading. Fake money. Real vibes. Not investment advice.</p>
+<p style="margin: 0; font-size: 13px; max-width: 72ch">Mood Ring Capital is a fictional fund run by an AI on a paper trading account. Nothing here is a recommendation to buy or sell anything.</p>
+</div>
+</div>
+</footer>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mood":{"editor":"enum","options":["Doom","Nervous","Unbothered","Optimistic","Euphoric"],"default":"Optimistic"},"$preview":{"width":1440,"height":3600}}'>
+class Component extends DCLogic {
+renderVals() {
+const bands = {
+Doom: { c: '#2B2B2B', label: 'bunker mode', score: '−0.78' },
+Nervous: { c: '#C98A1B', label: 'checking the phone a lot', score: '−0.35' },
+Unbothered: { c: '#4F8A5B', label: 'calm, possibly napping', score: '+0.04' },
+Optimistic: { c: '#2F6FA8', label: 'cautiously euphoric', score: '+0.42' },
+Euphoric: { c: '#7B4FA8', label: 'ordering the good champagne', score: '+0.81' }
+};
+const band = bands[this.props.mood] ? this.props.mood : 'Optimistic';
+const b = bands[band];
+const names = ['Doom', 'Nervous', 'Unbothered', 'Optimistic', 'Euphoric'];
+return {
+band: band, bandLower: band.toLowerCase(), accent: b.c, label: b.label, score: b.score,
+scale: names.map((n) => ({ name: n, c: bands[n].c }))
+};
+}
+}
+</script>
+</body>
+</html>

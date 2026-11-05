@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mood Ring Capital</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..900,0..100,0..1&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&amp;family=Pinyon+Script&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3E7D3}
+a{color:#3B2A20;text-decoration-thickness:2px;text-underline-offset:4px}a:hover{color:#B3541E}
+.fr{font-family:'Fraunces',Georgia,serif;font-variation-settings:'SOFT' 100,'WONK' 1}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+</style>
+</helmet>
+<div style="background: #F3E7D3; color: #3B2A20; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.5">
+<div style="max-width: 1280px; margin: 0 auto; padding: 32px 24px 48px; display: flex; flex-direction: column; gap: 44px">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px">
+<div style="display: flex; align-items: center; gap: 14px">
+<svg width="56" height="48" viewBox="0 0 56 48" aria-hidden="true">
+<ellipse cx="28" cy="31" rx="20" ry="12" fill="none" stroke="#C9973A" stroke-width="6"></ellipse>
+<ellipse cx="28" cy="18" rx="17" ry="13" fill="{{accent}}" stroke="#8C6420" stroke-width="3"></ellipse>
+<ellipse cx="22" cy="13" rx="6" ry="3.5" fill="#FFFFFF" fill-opacity="0.45" transform="rotate(-20 22 13)"></ellipse>
+</svg>
+<div style="display: flex; flex-direction: column; line-height: 1.05">
+<span class="fr" style="font-weight: 800; font-size: 34px; letter-spacing: -0.8px">Mood Ring Capital</span>
+<span class="mono" style="font-size: 11px; letter-spacing: 2.5px">EST. 2026 · RUN ON FEELINGS</span>
+</div>
+</div>
+<nav aria-label="Fund sections" style="display: flex; flex-wrap: wrap; align-items: center; gap: 26px; font-weight: 500">
+<a href="#">The Fund</a><a href="#">Holdings</a><a href="#">Trade Log</a><a href="#">Letters</a><a href="#">Friday Show</a>
+<span class="mono" style="font-size: 11px; letter-spacing: 1.5px; background: #3B2A20; color: #F3E7D3; padding: 4px 10px; border-radius: 999px">SAMPLE DATA</span>
+</nav>
+</header>
+
+<section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(540px, 100%), 1fr)); gap: 40px; align-items: center">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div class="mono" style="font-size: 13px; letter-spacing: 2.5px; color: #8A4A1E">DAY 62 · THURSDAY, NOVEMBER 5</div>
+<h1 class="fr" style="margin: 0; font-weight: 600; font-size: 52px; line-height: 1.04; letter-spacing: -1px; text-wrap: balance">Are vibes beating the S&amp;P 500?</h1>
+<div class="fr" style="font-weight: 900; font-size: 168px; line-height: 0.86; letter-spacing: -6px; color: #B3541E">Not yet.</div>
+<p style="margin: 6px 0 0; font-size: 19px; line-height: 1.55; max-width: 34ch; text-wrap: pretty">We led for 36 of 62 trading days and peaked at +5.9% on October 8. Yesterday the S&amp;P 500 took the lead back. The Chairman remains confident.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px">
+<div style="display: flex; align-items: baseline; gap: 10px; border: 2px solid #3B2A20; border-radius: 999px; padding: 8px 18px">
+<span style="font-size: 13px; font-weight: 600; letter-spacing: 1.5px">THE FUND</span>
+<span class="mono" style="font-size: 22px; font-weight: 600">▲ 3.1%</span>
+</div>
+<div style="display: flex; align-items: baseline; gap: 10px; border: 2px dashed #8C7B66; border-radius: 999px; padding: 8px 18px">
+<span style="font-size: 13px; font-weight: 600; letter-spacing: 1.5px">S&amp;P 500</span>
+<span class="mono" style="font-size: 22px; font-weight: 600">▲ 4.9%</span>
+</div>
+</div>
+</div>
+
+<div style="background: #FBF4E6; border: 2.5px solid #3B2A20; border-radius: 32px; overflow: hidden; display: flex; flex-direction: column">
+<svg viewBox="0 0 560 330" width="100%" role="img" aria-label="A mood ring whose stone shows today's mood color">
+<path d="M-20 330 A 300 300 0 0 1 580 330" fill="none" stroke="#3B2A20" stroke-width="30"></path>
+<path d="M10 330 A 270 270 0 0 1 550 330" fill="none" stroke="#B3541E" stroke-width="30"></path>
+<path d="M40 330 A 240 240 0 0 1 520 330" fill="none" stroke="#D9772B" stroke-width="30"></path>
+<path d="M70 330 A 210 210 0 0 1 490 330" fill="none" stroke="#E0A63B" stroke-width="30"></path>
+<ellipse cx="280" cy="252" rx="132" ry="58" fill="none" stroke="#8C6420" stroke-width="34"></ellipse>
+<ellipse cx="280" cy="252" rx="132" ry="58" fill="none" stroke="#D9A949" stroke-width="24"></ellipse>
+<path d="M170 222 Q280 196 390 222" fill="none" stroke="#F2CF7E" stroke-width="5" stroke-linecap="round"></path>
+<ellipse cx="280" cy="176" rx="108" ry="84" fill="#8C6420"></ellipse>
+<ellipse cx="280" cy="170" rx="98" ry="74" fill="#D9A949"></ellipse>
+<ellipse cx="280" cy="168" rx="86" ry="63" fill="{{accent}}"></ellipse>
+<ellipse cx="292" cy="182" rx="68" ry="44" fill="#000000" fill-opacity="0.16"></ellipse>
+<ellipse cx="250" cy="138" rx="34" ry="15" fill="#FFFFFF" fill-opacity="0.5" transform="rotate(-18 250 138)"></ellipse>
+<circle cx="318" cy="128" r="5" fill="#FFFFFF" fill-opacity="0.7"></circle>
+<path d="M186 140 l-14 -10 M374 140 l14 -10 M190 206 l-14 10 M370 206 l14 10" stroke="#8C6420" stroke-width="8" stroke-linecap="round"></path>
+</svg>
+<div style="background: {{accent}}; color: {{accentText}}; border-top: 2.5px solid #3B2A20; padding: 22px 28px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span class="mono" style="font-size: 12px; letter-spacing: 2.5px">TODAY'S MOOD · 9:40 AM ET</span>
+<span class="fr" style="font-weight: 800; font-size: 44px; line-height: 1.05">{{band}}</span>
+<span class="mono" style="font-size: 16px">{{score}} · {{label}}</span>
+</div>
+<div style="display: flex; gap: 6px" aria-label="Mood scale from doom to euphoric">
+<sc-for list="{{scale}}" as="sw" hint-placeholder-count="5">
+<span title="{{sw.name}}" style="width: 22px; height: 30px; border-radius: 50%; background: {{sw.c}}; border: {{sw.ring}}"></span>
+</sc-for>
+</div>
+</div>
+</div>
+</section>
+
+<div aria-hidden="true" style="display: flex; flex-direction: column">
+<div style="height: 12px; background: #3B2A20; border-radius: 12px 12px 0 0"></div>
+<div style="height: 12px; background: #B3541E"></div>
+<div style="height: 12px; background: #D9772B"></div>
+<div style="height: 12px; background: #E0A63B; border-radius: 0 0 12px 12px"></div>
+</div>
+
+<section aria-label="Key stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr)); gap: 16px">
+<div style="background: #FBF4E6; border: 2px solid #3B2A20; border-radius: 22px; padding: 18px 22px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 12px; font-weight: 600; letter-spacing: 2px">NET ASSET VALUE</span>
+<span class="mono" style="font-size: 28px; font-weight: 600">$103,100</span>
+<span style="font-size: 13px">from $100,000 on Aug 11</span>
+</div>
+<div style="background: #FBF4E6; border: 2px solid #3B2A20; border-radius: 22px; padding: 18px 22px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 12px; font-weight: 600; letter-spacing: 2px">GAP VS S&amp;P 500</span>
+<span class="mono" style="font-size: 28px; font-weight: 600">▼ 1.8 pts</span>
+<span style="font-size: 13px">behind since Nov 4</span>
+</div>
+<div style="background: #FBF4E6; border: 2px solid #3B2A20; border-radius: 22px; padding: 18px 22px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 12px; font-weight: 600; letter-spacing: 2px">DAYS IN THE LEAD</span>
+<span class="mono" style="font-size: 28px; font-weight: 600">36 of 62</span>
+<span style="font-size: 13px">58% of trading days</span>
+</div>
+<div style="background: #FBF4E6; border: 2px solid #3B2A20; border-radius: 22px; padding: 18px 22px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 12px; font-weight: 600; letter-spacing: 2px">BEST DAY ON RECORD</span>
+<span class="mono" style="font-size: 28px; font-weight: 600">▲ 5.9%</span>
+<span style="font-size: 13px">peak, October 8</span>
+</div>
+<div style="background: #FBF4E6; border: 2px solid #3B2A20; border-radius: 22px; padding: 18px 22px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 12px; font-weight: 600; letter-spacing: 2px">MAX DRAWDOWN</span>
+<span class="mono" style="font-size: 28px; font-weight: 600">▼ 2.9%</span>
+<span style="font-size: 13px">from the October peak</span>
+</div>
+<div style="background: #FBF4E6; border: 2px solid #3B2A20; border-radius: 22px; padding: 18px 22px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 12px; font-weight: 600; letter-spacing: 2px">WIN RATE</span>
+<span class="mono" style="font-size: 28px; font-weight: 600">54%</span>
+<span style="font-size: 13px">of closed trades</span>
+</div>
+</section>
+
+<section style="background: #FBF4E6; border: 2.5px solid #3B2A20; border-radius: 32px; padding: 28px 32px 24px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 12px">
+<h2 class="fr" style="margin: 0; font-weight: 700; font-size: 30px; letter-spacing: -0.5px">The race, day by day</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 22px; font-size: 14px; font-weight: 500">
+<span style="display: flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 28px; height: 4px; border-radius: 2px; background: #3B2A20"></span>Mood Ring Capital</span>
+<span style="display: flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 28px; border-top: 3px dashed #9A8670"></span>S&amp;P 500</span>
+</div>
+</div>
+<svg viewBox="0 0 1000 330" width="100%" role="img" aria-label="Fund value against the S&amp;P 500 since August 11. The fund led from late August, peaked October 8, and fell behind on November 4.">
+<g stroke="#E6D7BF" stroke-width="1">
+<line x1="60" y1="43" x2="980" y2="43"></line><line x1="60" y1="89" x2="980" y2="89"></line><line x1="60" y1="135" x2="980" y2="135"></line><line x1="60" y1="181" x2="980" y2="181"></line><line x1="60" y1="227" x2="980" y2="227"></line>
+</g>
+<g class="mono" font-size="12" fill="#6B5843" text-anchor="end">
+<text x="50" y="47">$106K</text><text x="50" y="93">$104K</text><text x="50" y="139">$102K</text><text x="50" y="185">$100K</text><text x="50" y="231">$98K</text>
+</g>
+<g class="mono" font-size="12" fill="#6B5843">
+<text x="60" y="272">AUG 11</text><text x="286" y="272">SEP</text><text x="603" y="272">OCT</text><text x="935" y="272">NOV</text>
+</g>
+<g stroke="#D8C7AC" stroke-width="1">
+<line x1="286.2" y1="20" x2="286.2" y2="255"></line><line x1="603" y1="20" x2="603" y2="255"></line><line x1="934.8" y1="20" x2="934.8" y2="255"></line>
+</g>
+<polyline fill="none" stroke="#9A8670" stroke-width="2.5" stroke-dasharray="7 6" stroke-linejoin="round" points="60,181 75.1,171.2 90.2,174.4 105.2,171.7 120.3,165 135.4,162.1 150.5,157.5 165.6,160.1 180.7,154.2 195.7,160.3 210.8,158.8 225.9,151.1 241,148.7 256.1,143.2 271.1,139.6 286.2,130 301.3,131 316.4,132 331.5,133.6 346.6,135.3 361.6,132.1 376.7,123.1 391.8,125.1 406.9,122.9 422,126.4 437,132.5 452.1,133.3 467.2,123.4 482.3,127.5 497.4,129.4 512.5,128.7 527.5,126 542.6,128.8 557.7,127.5 572.8,122.9 587.9,120.5 603,114.9 618,114.7 633.1,117.2 648.2,117.9 663.3,117.8 678.4,108.7 693.4,100.8 708.5,100.4 723.6,106 738.7,109.1 753.8,113.6 768.9,109.7 783.9,99.9 799,90.6 814.1,81 829.2,83 844.3,85.6 859.3,92.7 874.4,95.5 889.5,93.6 904.6,96.3 919.7,99.1 934.8,89.8 949.8,87.9 964.9,78.2 980,68.3"></polyline>
+<polyline fill="none" stroke="#3B2A20" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round" points="60,181 75.1,209.7 90.2,222.5 105.2,211 120.3,221.6 135.4,208.7 150.5,199.6 165.6,183.3 180.7,191.4 195.7,181.6 210.8,172.6 225.9,150.5 241,172.4 256.1,150.2 271.1,143.4 286.2,121.8 301.3,130 316.4,112.6 331.5,132.9 346.6,138 361.6,115 376.7,103.5 391.8,129 406.9,126.9 422,132.3 437,110.9 452.1,119.5 467.2,111.6 482.3,111.9 497.4,118.3 512.5,126.9 527.5,137.3 542.6,132.2 557.7,110.9 572.8,92 587.9,85.7 603,86.6 618,63.5 633.1,53.1 648.2,49.5 663.3,60 678.4,44.9 693.4,67.5 708.5,92 723.6,112.2 738.7,86 753.8,79.8 768.9,83.4 783.9,104.5 799,84.4 814.1,64.3 829.2,51.1 844.3,79.2 859.3,103.8 874.4,98.5 889.5,86.3 904.6,77.1 919.7,57.2 934.8,65.3 949.8,87.5 964.9,116.1 980,109.7"></polyline>
+<g>
+<line x1="75.1" y1="209.7" x2="96" y2="232" stroke="#B3541E" stroke-width="1.5"></line>
+<circle cx="75.1" cy="209.7" r="6" fill="#D9772B" stroke="#3B2A20" stroke-width="2"></circle>
+<rect x="96" y="226" width="168" height="24" rx="12" fill="#3B2A20"></rect>
+<text x="180" y="242" text-anchor="middle" font-size="12.5" fill="#FBF4E6" font-family="IBM Plex Sans, sans-serif" font-weight="500">Day 2: sold the airline</text>
+</g>
+<g>
+<line x1="678.4" y1="44.9" x2="700" y2="18" stroke="#B3541E" stroke-width="1.5"></line>
+<circle cx="678.4" cy="44.9" r="6" fill="#D9772B" stroke="#3B2A20" stroke-width="2"></circle>
+<rect x="700" y="4" width="176" height="24" rx="12" fill="#3B2A20"></rect>
+<text x="788" y="20" text-anchor="middle" font-size="12.5" fill="#FBF4E6" font-family="IBM Plex Sans, sans-serif" font-weight="500">Oct 8: the peak, up 5.9%</text>
+</g>
+<g>
+<line x1="964.9" y1="116.1" x2="930" y2="152" stroke="#B3541E" stroke-width="1.5"></line>
+<circle cx="964.9" cy="116.1" r="6" fill="#D9772B" stroke="#3B2A20" stroke-width="2"></circle>
+<rect x="790" y="150" width="150" height="24" rx="12" fill="#3B2A20"></rect>
+<text x="865" y="166" text-anchor="middle" font-size="12.5" fill="#FBF4E6" font-family="IBM Plex Sans, sans-serif" font-weight="500">Nov 4: lost the lead</text>
+</g>
+<circle cx="980" cy="109.7" r="8" fill="{{accent}}" stroke="#3B2A20" stroke-width="3"></circle>
+<text x="60" y="300" font-size="12" fill="#6B5843" class="mono">DAILY MOOD</text>
+<g transform="translate(0,306)">
+<rect x="60.0" y="0" width="12.8" height="22" rx="3" fill="#C98A1B"></rect><rect x="74.8" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="89.7" y="0" width="12.8" height="22" rx="3" fill="#C98A1B"></rect><rect x="104.5" y="0" width="12.8" height="22" rx="3" fill="#7B4FA8"></rect><rect x="119.4" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="134.2" y="0" width="12.8" height="22" rx="3" fill="#2F6FA8"></rect><rect x="149.0" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="163.9" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="178.7" y="0" width="12.8" height="22" rx="3" fill="#C98A1B"></rect><rect x="193.6" y="0" width="12.8" height="22" rx="3" fill="#2F6FA8"></rect><rect x="208.4" y="0" width="12.8" height="22" rx="3" fill="#C98A1B"></rect><rect x="223.2" y="0" width="12.8" height="22" rx="3" fill="#7B4FA8"></rect><rect x="238.1" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="252.9" y="0" width="12.8" height="22" rx="3" fill="#2F6FA8"></rect><rect x="267.8" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="282.6" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="297.4" y="0" width="12.8" height="22" rx="3" fill="#C98A1B"></rect><rect x="312.3" y="0" width="12.8" height="22" rx="3" fill="#7B4FA8"></rect><rect x="327.1" y="0" width="12.8" height="22" rx="3" fill="#2B2B2B"></rect><rect x="342.0" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="356.8" y="0" width="12.8" height="22" rx="3" fill="#7B4FA8"></rect><rect x="371.6" y="0" width="12.8" height="22" rx="3" fill="#C98A1B"></rect><rect x="386.5" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="401.3" y="0" width="12.8" height="22" rx="3" fill="#2F6FA8"></rect><rect x="416.2" y="0" width="12.8" height="22" rx="3" fill="#2F6FA8"></rect><rect x="431.0" y="0" width="12.8" height="22" rx="3" fill="#7B4FA8"></rect><rect x="445.8" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="460.7" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="475.5" y="0" width="12.8" height="22" rx="3" fill="#C98A1B"></rect><rect x="490.4" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="505.2" y="0" width="12.8" height="22" rx="3" fill="#2F6FA8"></rect><rect x="520.0" y="0" width="12.8" height="22" rx="3" fill="#C98A1B"></rect><rect x="534.9" y="0" width="12.8" height="22" rx="3" fill="#C98A1B"></rect><rect x="549.7" y="0" width="12.8" height="22" rx="3" fill="#2F6FA8"></rect><rect x="564.6" y="0" width="12.8" height="22" rx="3" fill="#7B4FA8"></rect><rect x="579.4" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="594.2" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="609.1" y="0" width="12.8" height="22" rx="3" fill="#2F6FA8"></rect><rect x="623.9" y="0" width="12.8" height="22" rx="3" fill="#2F6FA8"></rect><rect x="638.8" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="653.6" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="668.4" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="683.3" y="0" width="12.8" height="22" rx="3" fill="#2B2B2B"></rect><rect x="698.1" y="0" width="12.8" height="22" rx="3" fill="#C98A1B"></rect><rect x="713.0" y="0" width="12.8" height="22" rx="3" fill="#2F6FA8"></rect><rect x="727.8" y="0" width="12.8" height="22" rx="3" fill="#7B4FA8"></rect><rect x="742.6" y="0" width="12.8" height="22" rx="3" fill="#2F6FA8"></rect><rect x="757.5" y="0" width="12.8" height="22" rx="3" fill="#2F6FA8"></rect><rect x="772.3" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="787.2" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="802.0" y="0" width="12.8" height="22" rx="3" fill="#2F6FA8"></rect><rect x="816.8" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="831.7" y="0" width="12.8" height="22" rx="3" fill="#C98A1B"></rect><rect x="846.5" y="0" width="12.8" height="22" rx="3" fill="#C98A1B"></rect><rect x="861.4" y="0" width="12.8" height="22" rx="3" fill="#2F6FA8"></rect><rect x="876.2" y="0" width="12.8" height="22" rx="3" fill="#7B4FA8"></rect><rect x="891.0" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="905.9" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="920.7" y="0" width="12.8" height="22" rx="3" fill="#4F8A5B"></rect><rect x="935.6" y="0" width="12.8" height="22" rx="3" fill="#2B2B2B"></rect><rect x="950.4" y="0" width="12.8" height="22" rx="3" fill="#C98A1B"></rect>
+<rect x="965.2" y="-3" width="14.8" height="28" rx="3" fill="{{accent}}" stroke="#3B2A20" stroke-width="2"></rect>
+</g>
+</svg>
+<div style="display: flex; flex-wrap: wrap; gap: 18px; font-size: 13px; padding-left: 4px">
+<sc-for list="{{scale}}" as="sw" hint-placeholder-count="5">
+<span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; border-radius: 3px; background: {{sw.c}}"></span>{{sw.name}}</span>
+</sc-for>
+</div>
+</section>
+
+<section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(560px, 100%), 1fr)); gap: 28px; align-items: start">
+<div style="background: #FBF4E6; border: 2.5px solid #3B2A20; border-radius: 32px; padding: 28px 32px; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px">
+<h2 class="fr" style="margin: 0; font-weight: 700; font-size: 30px; letter-spacing: -0.5px">What we own, and why</h2>
+<span class="mono" style="font-size: 12px; letter-spacing: 1.5px">7 HOLDINGS · 7% CASH</span>
+</div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 120px 78px; gap: 16px; align-items: center; padding: 12px 0; border-top: 1.5px solid #E2D0B3">
+<div style="display: flex; flex-direction: column"><span style="font-weight: 600">Coffee chain</span><span style="font-style: italic; font-size: 14px; color: #6B5843">Lines around the block.</span></div>
+<div style="display: flex; align-items: center; gap: 8px"><span style="height: 10px; width: 54px; border-radius: 5px; background: #D9772B"></span><span class="mono" style="font-size: 14px">18%</span></div>
+<span class="mono" style="font-weight: 600; text-align: right">▲ 6.2%</span>
+</div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 120px 78px; gap: 16px; align-items: center; padding: 12px 0; border-top: 1.5px solid #E2D0B3">
+<div style="display: flex; flex-direction: column"><span style="font-weight: 600">Chip designer</span><span style="font-style: italic; font-size: 14px; color: #6B5843">Everyone at the party was talking about it.</span></div>
+<div style="display: flex; align-items: center; gap: 8px"><span style="height: 10px; width: 48px; border-radius: 5px; background: #D9772B"></span><span class="mono" style="font-size: 14px">16%</span></div>
+<span class="mono" style="font-weight: 600; text-align: right">▲ 9.8%</span>
+</div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 120px 78px; gap: 16px; align-items: center; padding: 12px 0; border-top: 1.5px solid #E2D0B3">
+<div style="display: flex; flex-direction: column"><span style="font-weight: 600">Cereal maker</span><span style="font-style: italic; font-size: 14px; color: #6B5843">Breakfast for dinner is back.</span></div>
+<div style="display: flex; align-items: center; gap: 8px"><span style="height: 10px; width: 45px; border-radius: 5px; background: #D9772B"></span><span class="mono" style="font-size: 14px">15%</span></div>
+<span class="mono" style="font-weight: 600; text-align: right">▼ 3.1%</span>
+</div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 120px 78px; gap: 16px; align-items: center; padding: 12px 0; border-top: 1.5px solid #E2D0B3">
+<div style="display: flex; flex-direction: column"><span style="font-weight: 600">Regional bank</span><span style="font-style: italic; font-size: 14px; color: #6B5843">A reassuringly dull headline.</span></div>
+<div style="display: flex; align-items: center; gap: 8px"><span style="height: 10px; width: 42px; border-radius: 5px; background: #D9772B"></span><span class="mono" style="font-size: 14px">14%</span></div>
+<span class="mono" style="font-weight: 600; text-align: right">▲ 1.4%</span>
+</div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 120px 78px; gap: 16px; align-items: center; padding: 12px 0; border-top: 1.5px solid #E2D0B3">
+<div style="display: flex; flex-direction: column"><span style="font-weight: 600">Sneaker brand</span><span style="font-style: italic; font-size: 14px; color: #6B5843">Marathon season.</span></div>
+<div style="display: flex; align-items: center; gap: 8px"><span style="height: 10px; width: 36px; border-radius: 5px; background: #D9772B"></span><span class="mono" style="font-size: 14px">12%</span></div>
+<span class="mono" style="font-weight: 600; text-align: right">▼ 0.6%</span>
+</div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 120px 78px; gap: 16px; align-items: center; padding: 12px 0; border-top: 1.5px solid #E2D0B3">
+<div style="display: flex; flex-direction: column"><span style="font-weight: 600">Cruise line</span><span style="font-style: italic; font-size: 14px; color: #6B5843">Bookings up, seasickness unreported.</span></div>
+<div style="display: flex; align-items: center; gap: 8px"><span style="height: 10px; width: 30px; border-radius: 5px; background: #D9772B"></span><span class="mono" style="font-size: 14px">10%</span></div>
+<span class="mono" style="font-weight: 600; text-align: right">▲ 4.0%</span>
+</div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 120px 78px; gap: 16px; align-items: center; padding: 12px 0; border-top: 1.5px solid #E2D0B3">
+<div style="display: flex; flex-direction: column"><span style="font-weight: 600">Toy company</span><span style="font-style: italic; font-size: 14px; color: #6B5843">Holiday optimism, slightly early.</span></div>
+<div style="display: flex; align-items: center; gap: 8px"><span style="height: 10px; width: 24px; border-radius: 5px; background: #D9772B"></span><span class="mono" style="font-size: 14px">8%</span></div>
+<span class="mono" style="font-weight: 600; text-align: right">▼ 2.2%</span>
+</div>
+</div>
+
+<div style="background: #FBF4E6; border: 2.5px solid #3B2A20; border-radius: 32px; padding: 28px 32px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<h2 class="fr" style="margin: 0; font-weight: 700; font-size: 30px; letter-spacing: -0.5px">The trade log</h2>
+<a href="#" style="font-size: 14px; font-weight: 500">All 141 trades</a>
+</div>
+<article style="display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; background: #F3E7D3; border-radius: 18px">
+<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+<span class="mono" style="font-size: 12px; font-weight: 600; letter-spacing: 1.5px; color: #FBF4E6; background: #4F7A3A; padding: 3px 10px; border-radius: 999px">BUY</span>
+<span style="font-weight: 600">Coffee chain</span>
+<span class="mono" style="font-size: 13px; color: #6B5843">$12,000 · Nov 5, 9:41 AM</span>
+</div>
+<p style="margin: 0; font-size: 16px">Lines are long and the vibes are caffeinated. We are in.</p>
+</article>
+<article style="display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; background: #F3E7D3; border-radius: 18px">
+<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+<span class="mono" style="font-size: 12px; font-weight: 600; letter-spacing: 1.5px; color: #FBF4E6; background: #A3461A; padding: 3px 10px; border-radius: 999px">SELL</span>
+<span style="font-weight: 600">Streaming service</span>
+<span class="mono" style="font-size: 13px; color: #6B5843">$9,500 · Nov 5, 9:41 AM</span>
+</div>
+<p style="margin: 0; font-size: 16px">Three price hike headlines before breakfast. We cancelled our subscription.</p>
+</article>
+<article style="position: relative; display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; background: #F3E7D3; border-radius: 18px">
+<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+<span class="mono" style="font-size: 12px; font-weight: 600; letter-spacing: 1.5px; color: #6B5843; border: 1.5px solid #8C7B66; padding: 2px 10px; border-radius: 999px">BUY</span>
+<span style="font-weight: 600; text-decoration: line-through; color: #8C7B66">A company that does not exist</span>
+<span class="mono" style="font-size: 13px; color: #8C7B66">$8,000 · Nov 4</span>
+</div>
+<div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
+<span class="mono" style="font-size: 14px; font-weight: 600; letter-spacing: 1.5px; color: #A3261E; border: 2.5px solid #A3261E; padding: 3px 10px; border-radius: 6px; transform: rotate(-3deg)">COMPLIANCE DECLINED</span>
+<span style="font-size: 15px; color: #6B5843">Inspiring, but no.</span>
+</div>
+</article>
+<article style="display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; background: #F3E7D3; border-radius: 18px">
+<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+<span class="mono" style="font-size: 12px; font-weight: 600; letter-spacing: 1.5px; color: #3B2A20; border: 1.5px solid #3B2A20; padding: 2px 10px; border-radius: 999px">HOLD</span>
+<span class="mono" style="font-size: 13px; color: #6B5843">Nov 3</span>
+</div>
+<p style="margin: 0; font-size: 16px">The news was loud but not convincing. The Chairman finished his tea.</p>
+</article>
+</div>
+</section>
+
+<section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(560px, 100%), 1fr)); gap: 28px; align-items: stretch">
+<article style="background: #FFFBF2; border: 2.5px solid #3B2A20; border-radius: 32px; padding: 36px 40px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3B2A20; padding-bottom: 12px">
+<span class="mono" style="font-size: 12px; letter-spacing: 2px">FROM THE DESK OF THE CHAIRMAN</span>
+<span class="mono" style="font-size: 12px; letter-spacing: 1px">LETTER NO. 12 · OCT 30</span>
+</div>
+<p class="fr" style="margin: 0; font-size: 26px; font-weight: 600">Dear Investors,</p>
+<p style="margin: 0; font-size: 18px; line-height: 1.65; text-wrap: pretty">This week the fund handed the lead back to the S&amp;P 500, which the Chairman describes as a character building week. Our conviction remains unshaken, mostly because we have not checked. The coffee position continues to perform, as does the coffee.</p>
+<div style="display: flex; flex-direction: column; gap: 0; margin-top: 4px">
+<span style="font-family: 'Pinyon Script', cursive; font-size: 40px; line-height: 1.1">Peregrine Ashby</span>
+<span style="font-size: 14px; color: #6B5843">Sir Peregrine Ashby, Chairman</span>
+</div>
+<a href="#" style="font-weight: 500; margin-top: auto">Read all 12 letters</a>
+</article>
+
+<article style="background: #FBF4E6; border: 2.5px solid #3B2A20; border-radius: 32px; padding: 28px 32px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px">
+<h2 class="fr" style="margin: 0; font-weight: 700; font-size: 30px; letter-spacing: -0.5px">The Friday Show</h2>
+<span class="mono" style="font-size: 11px; letter-spacing: 1.5px; border: 1.5px dashed #3B2A20; padding: 3px 10px; border-radius: 999px">PREVIEW · NOT PUBLIC YET</span>
+</div>
+<svg viewBox="0 0 520 300" width="100%" role="img" aria-label="A 1970s television set showing the Broker at his desk, with a play button">
+<rect x="6" y="6" width="508" height="288" rx="34" fill="#6B4226" stroke="#3B2A20" stroke-width="5"></rect>
+<path d="M30 40 Q260 30 490 44 M28 120 Q260 112 492 124 M30 220 Q260 214 490 226" stroke="#5A361E" stroke-width="3" fill="none"></path>
+<rect x="34" y="30" width="356" height="240" rx="44" fill="#2E3B35" stroke="#1E2420" stroke-width="8"></rect>
+<rect x="60" y="56" width="304" height="188" rx="30" fill="#E8D9BC"></rect>
+<rect x="60" y="56" width="304" height="188" rx="30" fill="none" stroke="#2E3B35" stroke-width="2"></rect>
+<rect x="250" y="76" width="56" height="46" rx="3" fill="#C9973A" stroke="#8C6420" stroke-width="3"></rect>
+<ellipse cx="278" cy="100" rx="12" ry="14" fill="#F0D2AE"></ellipse>
+<circle cx="278" cy="96" r="7" fill="none" stroke="#3B2A20" stroke-width="1.5"></circle>
+<path d="M118 244 Q118 150 170 140 Q222 150 222 244 Z" fill="#FFFBF2" stroke="#3B2A20" stroke-width="3"></path>
+<path d="M170 146 l-8 18 l8 52 l8 -52 Z" fill="#B3541E"></path>
+<circle cx="170" cy="112" r="34" fill="#F0C79A" stroke="#3B2A20" stroke-width="3"></circle>
+<path d="M140 102 Q170 72 200 102" fill="none" stroke="#6B4226" stroke-width="7" stroke-linecap="round"></path>
+<circle cx="159" cy="114" r="3.5" fill="#3B2A20"></circle><circle cx="181" cy="114" r="3.5" fill="#3B2A20"></circle>
+<path d="M160 130 Q170 124 180 130" fill="none" stroke="#3B2A20" stroke-width="3" stroke-linecap="round"></path>
+<path d="M206 98 q5 9 0 13 q-5 -4 0 -13 Z" fill="#5FA8D3"></path>
+<rect x="60" y="214" width="304" height="30" fill="#3B2A20"></rect>
+<circle cx="212" cy="150" r="30" fill="#D9772B" fill-opacity="0.95" stroke="#3B2A20" stroke-width="3"></circle>
+<path d="M203 136 L227 150 L203 164 Z" fill="#FFFBF2"></path>
+<circle cx="452" cy="80" r="24" fill="#C9973A" stroke="#3B2A20" stroke-width="4"></circle>
+<line x1="452" y1="80" x2="466" y2="66" stroke="#3B2A20" stroke-width="4" stroke-linecap="round"></line>
+<circle cx="452" cy="150" r="24" fill="#C9973A" stroke="#3B2A20" stroke-width="4"></circle>
+<line x1="452" y1="150" x2="436" y2="136" stroke="#3B2A20" stroke-width="4" stroke-linecap="round"></line>
+<rect x="418" y="202" width="68" height="8" rx="4" fill="#3B2A20"></rect><rect x="418" y="218" width="68" height="8" rx="4" fill="#3B2A20"></rect><rect x="418" y="234" width="68" height="8" rx="4" fill="#3B2A20"></rect>
+</svg>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span class="fr" style="font-weight: 700; font-size: 22px">Episode 12: The Chairman Bought Cereal Again</span>
+<span style="font-size: 14px; color: #6B5843">With Barry Kessler, The Desk · 0:41 · Captions on</span>
+</div>
+</article>
+</section>
+
+<footer style="display: flex; flex-direction: column; gap: 18px">
+<div aria-hidden="true" style="display: flex; flex-direction: column">
+<div style="height: 8px; background: #3B2A20"></div><div style="height: 8px; background: #B3541E"></div><div style="height: 8px; background: #D9772B"></div><div style="height: 8px; background: #E0A63B"></div>
+</div>
+<div class="mono" style="border: 2px dashed #3B2A20; border-radius: 14px; padding: 14px 20px; text-align: center; font-size: 15px; font-weight: 500; letter-spacing: 1px">Paper trading. Fake money. Real vibes. Not investment advice.</div>
+<p style="margin: 0; font-size: 13px; color: #6B5843; max-width: 80ch">Mood Ring Capital is a fictional fund run by an AI on a paper trading account. Nothing here is a recommendation to buy or sell anything. Every number on this page is sample data for design review.</p>
+</footer>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mood":{"editor":"enum","options":["Doom","Nervous","Unbothered","Optimistic","Euphoric"],"default":"Optimistic"},"$preview":{"width":1440,"height":3200}}'>
+class Component extends DCLogic {
+renderVals() {
+const bands = {
+Doom: { c: '#2B2B2B', t: '#F3E7D3', label: 'bunker mode', score: '−0.78' },
+Nervous: { c: '#C98A1B', t: '#2A1D15', label: 'checking the phone a lot', score: '−0.35' },
+Unbothered: { c: '#4F8A5B', t: '#FFFBF2', label: 'calm, possibly napping', score: '+0.04' },
+Optimistic: { c: '#2F6FA8', t: '#FFFBF2', label: 'cautiously euphoric', score: '+0.42' },
+Euphoric: { c: '#7B4FA8', t: '#FFFBF2', label: 'ordering the good champagne', score: '+0.81' }
+};
+const band = bands[this.props.mood] ? this.props.mood : 'Optimistic';
+const b = bands[band];
+const names = ['Doom', 'Nervous', 'Unbothered', 'Optimistic', 'Euphoric'];
+return {
+band: band, accent: b.c, accentText: b.t, label: b.label, score: b.score,
+scale: names.map((n) => ({ name: n, c: bands[n].c, ring: n === band ? '3px solid ' + b.t : '1.5px solid rgba(0,0,0,0.25)' }))
+};
+}
+}
+</script>
+</body>
+</html>

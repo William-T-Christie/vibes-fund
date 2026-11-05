@@ -1,0 +1,484 @@
+{
+ "_note": "Sample data used in the design mockups (seed 7). Not real results. 62 trading days, Aug 11 to Nov 5 2026, Labor Day skipped. The last day's mood follows the mockup's Tweaks setting (Optimistic by default).",
+ "start_value": 100000,
+ "end": {
+  "fund": 103100,
+  "spy": 104900,
+  "fund_return_pct": 3.1,
+  "spy_return_pct": 4.9
+ },
+ "facts": {
+  "days_ahead": 36,
+  "peak": {
+   "date": "2026-10-08",
+   "value": 105920
+  },
+  "max_drawdown_pct": 2.9,
+  "lost_lead": "2026-11-04",
+  "today": {
+   "fund_pct": 0.27,
+   "spy_pct": 0.41
+  },
+  "win_rate_pct": 54,
+  "trades": 147,
+  "declined_by_compliance": 6
+ },
+ "mood_bands": {
+  "Doom": {
+   "color": "#2B2B2B",
+   "range": "-1.0 to -0.6"
+  },
+  "Nervous": {
+   "color": "#C98A1B",
+   "range": "-0.6 to -0.2"
+  },
+  "Unbothered": {
+   "color": "#4F8A5B",
+   "range": "-0.2 to +0.2"
+  },
+  "Optimistic": {
+   "color": "#2F6FA8",
+   "range": "+0.2 to +0.6"
+  },
+  "Euphoric": {
+   "color": "#7B4FA8",
+   "range": "+0.6 to +1.0"
+  }
+ },
+ "days": [
+  {
+   "date": "2026-08-11",
+   "fund": 100000,
+   "spy": 100000,
+   "lead_points": 0.0,
+   "mood": "Nervous"
+  },
+  {
+   "date": "2026-08-12",
+   "fund": 98750,
+   "spy": 100428,
+   "lead_points": -1.68,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-08-13",
+   "fund": 98194,
+   "spy": 100287,
+   "lead_points": -2.09,
+   "mood": "Nervous"
+  },
+  {
+   "date": "2026-08-14",
+   "fund": 98695,
+   "spy": 100405,
+   "lead_points": -1.71,
+   "mood": "Euphoric"
+  },
+  {
+   "date": "2026-08-17",
+   "fund": 98235,
+   "spy": 100697,
+   "lead_points": -2.46,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-08-18",
+   "fund": 98797,
+   "spy": 100823,
+   "lead_points": -2.03,
+   "mood": "Optimistic"
+  },
+  {
+   "date": "2026-08-19",
+   "fund": 99190,
+   "spy": 101023,
+   "lead_points": -1.83,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-08-20",
+   "fund": 99900,
+   "spy": 100907,
+   "lead_points": -1.01,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-08-21",
+   "fund": 99548,
+   "spy": 101165,
+   "lead_points": -1.62,
+   "mood": "Nervous"
+  },
+  {
+   "date": "2026-08-24",
+   "fund": 99973,
+   "spy": 100899,
+   "lead_points": -0.93,
+   "mood": "Optimistic"
+  },
+  {
+   "date": "2026-08-25",
+   "fund": 100364,
+   "spy": 100964,
+   "lead_points": -0.6,
+   "mood": "Nervous"
+  },
+  {
+   "date": "2026-08-26",
+   "fund": 101328,
+   "spy": 101301,
+   "lead_points": 0.03,
+   "mood": "Euphoric"
+  },
+  {
+   "date": "2026-08-27",
+   "fund": 100373,
+   "spy": 101403,
+   "lead_points": -1.03,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-08-28",
+   "fund": 101338,
+   "spy": 101645,
+   "lead_points": -0.31,
+   "mood": "Optimistic"
+  },
+  {
+   "date": "2026-08-31",
+   "fund": 101633,
+   "spy": 101798,
+   "lead_points": -0.17,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-09-01",
+   "fund": 102572,
+   "spy": 102216,
+   "lead_points": 0.36,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-09-02",
+   "fund": 102215,
+   "spy": 102175,
+   "lead_points": 0.04,
+   "mood": "Nervous"
+  },
+  {
+   "date": "2026-09-03",
+   "fund": 102974,
+   "spy": 102132,
+   "lead_points": 0.84,
+   "mood": "Euphoric"
+  },
+  {
+   "date": "2026-09-04",
+   "fund": 102090,
+   "spy": 102061,
+   "lead_points": 0.03,
+   "mood": "Doom"
+  },
+  {
+   "date": "2026-09-08",
+   "fund": 101869,
+   "spy": 101988,
+   "lead_points": -0.12,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-09-09",
+   "fund": 102868,
+   "spy": 102125,
+   "lead_points": 0.74,
+   "mood": "Euphoric"
+  },
+  {
+   "date": "2026-09-10",
+   "fund": 103368,
+   "spy": 102519,
+   "lead_points": 0.85,
+   "mood": "Nervous"
+  },
+  {
+   "date": "2026-09-11",
+   "fund": 102259,
+   "spy": 102428,
+   "lead_points": -0.17,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-09-14",
+   "fund": 102354,
+   "spy": 102527,
+   "lead_points": -0.17,
+   "mood": "Optimistic"
+  },
+  {
+   "date": "2026-09-15",
+   "fund": 102116,
+   "spy": 102372,
+   "lead_points": -0.26,
+   "mood": "Optimistic"
+  },
+  {
+   "date": "2026-09-16",
+   "fund": 103047,
+   "spy": 102107,
+   "lead_points": 0.94,
+   "mood": "Euphoric"
+  },
+  {
+   "date": "2026-09-17",
+   "fund": 102674,
+   "spy": 102074,
+   "lead_points": 0.6,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-09-18",
+   "fund": 103019,
+   "spy": 102504,
+   "lead_points": 0.52,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-09-21",
+   "fund": 103004,
+   "spy": 102328,
+   "lead_points": 0.68,
+   "mood": "Nervous"
+  },
+  {
+   "date": "2026-09-22",
+   "fund": 102728,
+   "spy": 102246,
+   "lead_points": 0.48,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-09-23",
+   "fund": 102352,
+   "spy": 102276,
+   "lead_points": 0.08,
+   "mood": "Optimistic"
+  },
+  {
+   "date": "2026-09-24",
+   "fund": 101900,
+   "spy": 102392,
+   "lead_points": -0.49,
+   "mood": "Nervous"
+  },
+  {
+   "date": "2026-09-25",
+   "fund": 102124,
+   "spy": 102270,
+   "lead_points": -0.15,
+   "mood": "Nervous"
+  },
+  {
+   "date": "2026-09-28",
+   "fund": 103049,
+   "spy": 102327,
+   "lead_points": 0.72,
+   "mood": "Optimistic"
+  },
+  {
+   "date": "2026-09-29",
+   "fund": 103871,
+   "spy": 102527,
+   "lead_points": 1.34,
+   "mood": "Euphoric"
+  },
+  {
+   "date": "2026-09-30",
+   "fund": 104143,
+   "spy": 102631,
+   "lead_points": 1.51,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-10-01",
+   "fund": 104105,
+   "spy": 102873,
+   "lead_points": 1.23,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-10-02",
+   "fund": 105110,
+   "spy": 102882,
+   "lead_points": 2.23,
+   "mood": "Optimistic"
+  },
+  {
+   "date": "2026-10-05",
+   "fund": 105559,
+   "spy": 102774,
+   "lead_points": 2.79,
+   "mood": "Optimistic"
+  },
+  {
+   "date": "2026-10-06",
+   "fund": 105718,
+   "spy": 102745,
+   "lead_points": 2.97,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-10-07",
+   "fund": 105261,
+   "spy": 102749,
+   "lead_points": 2.51,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-10-08",
+   "fund": 105918,
+   "spy": 103143,
+   "lead_points": 2.77,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-10-09",
+   "fund": 104935,
+   "spy": 103489,
+   "lead_points": 1.45,
+   "mood": "Doom"
+  },
+  {
+   "date": "2026-10-12",
+   "fund": 103871,
+   "spy": 103506,
+   "lead_points": 0.36,
+   "mood": "Nervous"
+  },
+  {
+   "date": "2026-10-13",
+   "fund": 102990,
+   "spy": 103259,
+   "lead_points": -0.27,
+   "mood": "Optimistic"
+  },
+  {
+   "date": "2026-10-14",
+   "fund": 104130,
+   "spy": 103126,
+   "lead_points": 1.0,
+   "mood": "Euphoric"
+  },
+  {
+   "date": "2026-10-15",
+   "fund": 104398,
+   "spy": 102933,
+   "lead_points": 1.47,
+   "mood": "Optimistic"
+  },
+  {
+   "date": "2026-10-16",
+   "fund": 104245,
+   "spy": 103098,
+   "lead_points": 1.15,
+   "mood": "Optimistic"
+  },
+  {
+   "date": "2026-10-19",
+   "fund": 103326,
+   "spy": 103527,
+   "lead_points": -0.2,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-10-20",
+   "fund": 104199,
+   "spy": 103930,
+   "lead_points": 0.27,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-10-21",
+   "fund": 105073,
+   "spy": 104347,
+   "lead_points": 0.73,
+   "mood": "Optimistic"
+  },
+  {
+   "date": "2026-10-22",
+   "fund": 105650,
+   "spy": 104259,
+   "lead_points": 1.39,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-10-23",
+   "fund": 104425,
+   "spy": 104149,
+   "lead_points": 0.28,
+   "mood": "Nervous"
+  },
+  {
+   "date": "2026-10-26",
+   "fund": 103357,
+   "spy": 103841,
+   "lead_points": -0.48,
+   "mood": "Nervous"
+  },
+  {
+   "date": "2026-10-27",
+   "fund": 103587,
+   "spy": 103717,
+   "lead_points": -0.13,
+   "mood": "Optimistic"
+  },
+  {
+   "date": "2026-10-28",
+   "fund": 104116,
+   "spy": 103800,
+   "lead_points": 0.32,
+   "mood": "Euphoric"
+  },
+  {
+   "date": "2026-10-29",
+   "fund": 104516,
+   "spy": 103681,
+   "lead_points": 0.83,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-10-30",
+   "fund": 105383,
+   "spy": 103561,
+   "lead_points": 1.82,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-11-02",
+   "fund": 105030,
+   "spy": 103967,
+   "lead_points": 1.06,
+   "mood": "Unbothered"
+  },
+  {
+   "date": "2026-11-03",
+   "fund": 104064,
+   "spy": 104050,
+   "lead_points": 0.01,
+   "mood": "Doom"
+  },
+  {
+   "date": "2026-11-04",
+   "fund": 102821,
+   "spy": 104471,
+   "lead_points": -1.65,
+   "mood": "Nervous"
+  },
+  {
+   "date": "2026-11-05",
+   "fund": 103100,
+   "spy": 104900,
+   "lead_points": -1.8,
+   "mood": "Optimistic"
+  }
+ ]
+}
