@@ -34,7 +34,7 @@ jobs:
 
       - name: Commit hold note (if any)
         if: steps.prepare.outputs.proceed != 'true'
-        run: scripts/commit-data.sh "Morning: hold $(date -u +%F)"
+        run: scripts/commit-data.sh "Morning hold $(date -u +%F)"
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         if: steps.prepare.outputs.proceed == 'true'
@@ -54,7 +54,7 @@ jobs:
       # Committed before any order is placed, so the history proves nothing was edited afterward.
       - name: Commit the decision
         if: steps.prepare.outputs.proceed == 'true'
-        run: scripts/commit-data.sh "Morning: decision $(date -u +%F)"
+        run: scripts/commit-data.sh "Morning decision $(date -u +%F)"
 
       - name: Validate and trade
         if: steps.decide.outputs.proceed == 'true'
@@ -65,4 +65,4 @@ jobs:
 
       - name: Commit the fills
         if: steps.decide.outputs.proceed == 'true'
-        run: scripts/commit-data.sh "Morning: fills $(date -u +%F)"
+        run: scripts/commit-data.sh "Morning fills $(date -u +%F)"
