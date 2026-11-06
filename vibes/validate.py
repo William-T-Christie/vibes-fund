@@ -77,6 +77,12 @@ PRICE_ONLY_RE = re.compile(
     re.I,
 )
 CONVICTION_RANK = {k: i for i, k in enumerate(config.CONVICTION)}
+OPINION_RE = re.compile(
+    r"\b(analysts?|upgrade[sd]?|downgrade[sd]?|price targets?|targets? (raised|lifted|cut|to \$)|"
+    r"(raises?|raised|lifts?|lifted|cuts?) (its |the |their )?targets?|overweight|underweight|outperform|"
+    r"buy rating|ratings?|initiates? coverage|initiated)\b",
+    re.I,
+)
 
 
 def size_dollars(conviction: str, nav: float) -> float:
@@ -147,6 +153,9 @@ def _validate(
     cash = float(book["cash"])
     held = {p["ticker"]: dict(p) for p in book["positions"]}
     paused = set(paused_names or [])
+    verdict_of = {str(v.get("ticker", "")).upper(): v.get("verdict") for v in decision.get("book", []) or []
+                  if isinstance(v, dict)}
+    strengthened = {t for t, v in verdict_of.items() if v == "strengthened"}
     res = Result()
     seen: set[tuple[str, str]] = set()
     leaps = 0
@@ -215,6 +224,14 @@ def _validate(
             if size not in config.SELL_SIZES:
                 decline(t, f"'{size}' is not trim or exit.")
                 continue
+            turned = verdict_of.get(ticker) in ("weakened", "dead") or bool(t.get("from_verdict"))
+            if size == "trim" and not turned:
+                decline(t, f"Trims need a Weakened or Dead verdict on {ticker}. Nothing about it has changed.")
+                continue
+            if (pos.get("drift_days_left") or 0) > 0 and not turned:
+                decline(t, f"{ticker} is in its earnings drift window for {pos['drift_days_left']} more days. "
+                           "The fund is patient with good news.")
+                continue
             value = float(pos["market_value"])
             close_all = size == "exit"
             dollars = value if close_all else round(value * config.SELL_SIZES["trim"], 2)
@@ -237,13 +254,35 @@ def _validate(
                 pos["market_value"] = value - dollars
             res.accepted.append({
                 "action": "sell", "ticker": ticker, "dollars": round(dollars, 2), "size": size, "kind": kind,
-                "conviction": None, "close_all": close_all, "qty": pos["qty"] if close_all else None,
+                "conviction": None, "catalyst": str(t.get("catalyst") or "event").lower(), "close_all": close_all, "qty": pos["qty"] if close_all else None,
                 "reason": reason, "headline_link": link, "from_verdict": bool(t.get("from_verdict")),
             })
         else:
             conviction = str(t.get("conviction", "")).lower()
             if conviction not in config.CONVICTION:
                 decline(t, f"'{conviction}' is not mild, firm, strong or total.")
+                continue
+            if ticker in held and ticker not in strengthened:
+                decline(t, f"Adds need a Strengthened verdict on {ticker}. The fund does not top up out of boredom.")
+                continue
+            catalyst = str(t.get("catalyst") or "event").lower()
+            if catalyst not in config.CATALYSTS:
+                decline(t, f"'{catalyst}' is not an earnings beat, earnings miss, event or opinion.")
+                continue
+            if catalyst == "earnings_miss":
+                decline(t, "The fund does not buy on an earnings miss. Drift works both ways.")
+                continue
+            if conviction == "total" and catalyst != "earnings_beat":
+                decline(t, "Total conviction is reserved for an earnings beat. Settle for strong.")
+                continue
+            if catalyst == "opinion" and CONVICTION_RANK[conviction] > CONVICTION_RANK["mild"]:
+                decline(t, "An analyst's opinion earns a mild conviction at most. Events outrank opinions.")
+                continue
+            if CONVICTION_RANK[conviction] > CONVICTION_RANK["mild"] and OPINION_RE.search(reason):
+                decline(t, "An analyst's opinion earns a mild conviction at most. Events outrank opinions.")
+                continue
+            if ticker in held and (catalyst == "opinion" or OPINION_RE.search(reason)):
+                decline(t, "An analyst's opinion is never a reason to add.")
                 continue
             dollars = size_dollars(conviction, nav)
             if dollars < config.MIN_ORDER_DOLLARS:
@@ -275,7 +314,7 @@ def _validate(
                 held[ticker] = {"ticker": ticker, "market_value": fit, "qty": None}
             res.accepted.append({
                 "action": "buy", "ticker": ticker, "dollars": fit, "size": None, "kind": kind,
-                "conviction": conviction, "shrunk": fit < dollars, "close_all": False, "qty": None,
+                "conviction": conviction, "catalyst": catalyst, "shrunk": fit < dollars, "close_all": False, "qty": None,
                 "reason": reason, "headline_link": link, "from_verdict": False,
             })
         if kind == "leap":
@@ -293,3 +332,27 @@ def cash_target(mood_score: float | None, day_number: int) -> float | None:
     if mood_score is None or day_number <= config.FIRST_WEEK_DAYS:
         return None
     return config.MOOD_CASH_CEILING[config.mood_band(mood_score)[0]]
+
+
+def recent_sale_cash(trades: list[dict], session_dates: list[str], day: str,
+                     days: int = config.RECENT_SALE_DAYS) -> float:
+    """Proceeds of sells filled in the last `days` trading sessions, today included.
+
+    That cash doesn't count against the mood's cash limit, so a trim never forces a same-day rebuy.
+    """
+    past = sorted(d for d in set(session_dates) | {day} if d <= day)[-days:]
+    if not past:
+        return 0.0
+    return sum(float(t.get("dollars") or 0) for t in trades
+               if t.get("action") == "sell" and t.get("status") in ("filled", "partially_filled")
+               and t.get("date") in past)
+
+
+def cash_check(cash: float, nav: float, recent_sales: float, mood_score: float | None, day_number: int) -> dict | None:
+    """Compare cash, net of recent sale proceeds, with the mood's limit."""
+    target = cash_target(mood_score, day_number)
+    if target is None or not nav:
+        return None
+    counted = max(0.0, cash - recent_sales) / nav
+    return {"cash_pct": round(100 * cash / nav, 1), "counted_cash_pct": round(100 * counted, 1),
+            "target_pct": round(100 * target, 1), "on_target": counted <= target + 0.005}

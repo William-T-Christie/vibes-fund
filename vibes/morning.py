@@ -66,6 +66,12 @@ def enrich_positions(positions: list[dict], trades: list[dict], state: dict, nav
             thesis[t["ticker"]] = t["reason"]
     support = state.get("last_support", {})
     dates = [r["date"] for r in nav_rows]
+    drift_start = {}
+    for t in metrics.fills(trades):
+        if t["action"] == "buy" and t.get("catalyst") == "earnings_beat":
+            drift_start[t["ticker"]] = t["date"]
+        elif t["action"] == "sell" and t.get("size") == "exit":
+            drift_start.pop(t["ticker"], None)
     for p in positions:
         t = p["ticker"]
         p["thesis"] = thesis.get(t)
@@ -73,11 +79,15 @@ def enrich_positions(positions: list[dict], trades: list[dict], state: dict, nav
         p["days_held"] = None if not o else sum(1 for d in dates if o <= d < day)
         s = support.get(t) or o
         if not s:
-            p["days_since_support"], p["fading"] = None, False
+            p["days_since_support"], p["fading"], p["drift_days_left"] = None, False, 0
             continue
         since = 0 if s >= day else 1 + sum(1 for d in dates if s < d < day)
         p["days_since_support"] = since
-        p["fading"] = since >= config.FADING_DAYS
+        ds = drift_start.get(t)
+        elapsed = None if not ds else (0 if ds >= day else 1 + sum(1 for d in dates if ds < d < day))
+        p["drift_days_left"] = 0 if elapsed is None else max(0, config.DRIFT_DAYS - elapsed)
+        # The fading clock doesn't run while a holding is drifting on its earnings beat.
+        p["fading"] = since >= config.FADING_DAYS and not p["drift_days_left"]
 
 
 def prepare(client: Alpaca, now: datetime | None = None) -> dict:
@@ -266,6 +276,7 @@ def trade_log_rows(day: str, records: list[dict], declined: list[dict], links: d
             "link": r["headline_link"],
             "kind": r.get("kind"),
             "conviction": r.get("conviction"),
+            "catalyst": r.get("catalyst"),
             "size": r.get("size"),
             "shrunk": bool(r.get("shrunk")),
             "from_verdict": bool(r.get("from_verdict")),
@@ -278,7 +289,8 @@ def trade_log_rows(day: str, records: list[dict], declined: list[dict], links: d
             "date": day, "action": str(t.get("action", "")).lower(), "ticker": str(t.get("ticker", "")).upper(),
             "dollars": 0.0, "fill_price": None, "qty": 0.0, "status": "declined",
             "reason": str(t.get("reason", "")), "link": links.get(str(t.get("headline_id", ""))),
-            "kind": t.get("kind"), "conviction": t.get("conviction"), "size": t.get("size"),
+            "kind": t.get("kind"), "conviction": t.get("conviction"), "catalyst": t.get("catalyst"),
+            "size": t.get("size"),
             "compliance": d["reason"], "outcome_pct": None,
         })
     return rows

@@ -49,6 +49,7 @@ DECISION_SCHEMA = {
                     "action": {"type": "string", "enum": ["buy", "sell"]},
                     "ticker": {"type": "string"},
                     "kind": {"type": "string", "enum": list(config.TRADE_KINDS)},
+                    "catalyst": {"type": "string", "enum": list(config.CATALYSTS)},
                     "conviction": {"type": "string", "enum": list(config.CONVICTION)},
                     "size": {"type": "string", "enum": list(config.SELL_SIZES)},
                     "reason": {"type": "string"},
@@ -85,6 +86,8 @@ def build_prompt(*, date: str, day_number: int, book: dict, headlines: list[dict
             support = "unknown" if since is None else ("today" if since == 0 else f"{since} days ago")
             if p.get("fading"):
                 support += " (FADING)"
+            if p.get("drift_days_left"):
+                support += f" (DRIFT: {p['drift_days_left']} days left)"
             rows.append(
                 f"| {p['ticker']} | ${p['market_value']:,.0f} | {100 * p['market_value'] / nav:.1f}% "
                 f"| {p['gain_pct']:+.1f}% | {'?' if held is None else f'{held} days'} | {support} "
@@ -107,6 +110,7 @@ def build_prompt(*, date: str, day_number: int, book: dict, headlines: list[dict
             if day_number <= config.FIRST_WEEK_DAYS else ""
         ),
         fading_days=config.FADING_DAYS,
+        drift_days=config.DRIFT_DAYS,
         max_leaps=config.MAX_LEAPS_PER_DAY,
         sector_funds=", ".join(f"{k} {v}" for k, v in config.SECTOR_FUNDS.items()),
         max_trades=config.MAX_TRADES_PER_DAY,

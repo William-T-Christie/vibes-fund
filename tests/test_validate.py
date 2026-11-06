@@ -16,9 +16,10 @@ def pos(t, mv, qty="10"):
     return {"ticker": t, "market_value": mv, "qty": qty, "cost_basis": mv, "current_price": mv / 10, "gain_pct": 0}
 
 
-def buy(ticker="AAPL", conviction="firm", kind="direct", reason="The fund senses a crispness.", hid="h1"):
+def buy(ticker="AAPL", conviction="firm", kind="direct", reason="The fund senses a crispness.", hid="h1",
+        catalyst="event"):
     return {"action": "buy", "ticker": ticker, "conviction": conviction, "kind": kind, "reason": reason,
-            "headline_id": hid}
+            "headline_id": hid, "catalyst": catalyst}
 
 
 def sell(ticker, size="exit", kind="direct", reason="The vibe has left the building.", hid="h2"):
@@ -26,6 +27,8 @@ def sell(ticker, size="exit", kind="direct", reason="The vibe has left the build
 
 
 def run(trades, b=None, day=1, assets=None, liq=None, paused=None, verdicts=None):
+    if verdicts is None:  # by default, anything being sold has a Weakened verdict that morning
+        verdicts = [{"ticker": t["ticker"], "verdict": "weakened"} for t in trades if t["action"] == "sell"]
     tickers = {t["ticker"] for t in trades} | {x["ticker"] for x in verdicts or []}
     return v.validate(
         {"trades": trades, "book": verdicts or []},
@@ -49,7 +52,7 @@ def five(mv=15_000):
 # -- sizing ---------------------------------------------------------------
 
 def test_conviction_sets_dollars():
-    r = run([buy("AA", "mild"), buy("BB", "firm"), buy("CC", "strong"), buy("DD", "total")])
+    r = run([buy("AA", "mild"), buy("BB", "firm"), buy("CC", "strong"), buy("DD", "total", catalyst="earnings_beat")])
     assert {t["ticker"]: t["dollars"] for t in r.accepted} == {"AA": 5_000, "BB": 10_000, "CC": 15_000, "DD": 20_000}
     assert r.cash_after == 50_000
 
@@ -57,6 +60,34 @@ def test_conviction_sets_dollars():
 def test_dollars_round_down_to_100():
     r = run([buy(conviction="firm")], b=book(cash=123_456))
     assert r.accepted[0]["dollars"] == 12_300
+
+
+def test_total_is_for_earnings_beats_only():
+    assert "reserved for an earnings beat" in reasons(run([buy(conviction="total")]))[0]
+    assert run([buy(conviction="total", catalyst="earnings_beat")]).accepted
+    assert "does not buy on an earnings miss" in reasons(run([buy(catalyst="earnings_miss")]))[0]
+    assert "not an earnings beat" in reasons(run([buy(catalyst="gut")]))[0]
+    assert "mild conviction at most" in reasons(run([buy(conviction="firm", catalyst="opinion")]))[0]
+
+
+def test_trims_need_a_turned_verdict():
+    b = book([pos("MSFT", 10_000)], cash=90_000)
+    assert "Trims need a Weakened or Dead verdict" in reasons(run([sell("MSFT", "trim")], b=b, verdicts=[]))[0]
+    r = run([sell("MSFT", "trim")], b=b, verdicts=[{"ticker": "MSFT", "verdict": "intact"}])
+    assert "Trims need" in reasons(r)[0]
+    # An exit to make room or end a fading holding needs no verdict
+    assert run([sell("MSFT", "exit")], b=b, verdicts=[]).accepted
+
+
+def test_drift_window_protects_earnings_winners():
+    p = pos("NVDA", 15_000)
+    p["drift_days_left"] = 12
+    b = book([p], cash=85_000)
+    r = run([sell("NVDA", "exit")], b=b, verdicts=[{"ticker": "NVDA", "verdict": "intact"}])
+    assert "drift window for 12 more days" in reasons(r)[0]
+    assert run([sell("NVDA", "exit")], b=b, verdicts=[{"ticker": "NVDA", "verdict": "dead"}]).accepted
+    p["drift_days_left"] = 0
+    assert run([sell("NVDA", "exit")], b=b, verdicts=[]).accepted
 
 
 def test_bad_conviction():
@@ -83,11 +114,48 @@ def test_shrink_to_cash():
     assert "Only $500 left" in reasons(run([buy("AA", "firm")], b=b, day=10))[0]
 
 
+STRONGER = [{"ticker": "AAPL", "verdict": "strengthened"}]
+
+
 def test_position_cap_on_add():
-    r = run([buy("AAPL", "firm")], b=book([pos("AAPL", 15_000)], cash=85_000))
-    assert "over 20%" in reasons(r)[0]
-    r = run([buy("AAPL", "mild")], b=book([pos("AAPL", 15_000)], cash=85_000))
-    assert r.accepted
+    b = book([pos("AAPL", 15_000)], cash=85_000)
+    assert "over 20%" in reasons(run([buy("AAPL", "firm")], b=b, verdicts=STRONGER))[0]
+    assert run([buy("AAPL", "mild")], b=b, verdicts=STRONGER).accepted
+
+
+def test_adds_need_a_strengthened_verdict():
+    b = book([pos("AAPL", 10_000)], cash=90_000)
+    assert "Strengthened verdict" in reasons(run([buy("AAPL", "mild")], b=b))[0]
+    r = run([buy("AAPL", "mild")], b=b, verdicts=[{"ticker": "AAPL", "verdict": "intact"}])
+    assert "Strengthened verdict" in reasons(r)[0]
+    assert run([buy("AAPL", "mild")], b=b, verdicts=STRONGER).accepted
+
+
+def test_analyst_opinions_cap_at_mild_and_never_add():
+    why = "Barclays lifts its price target, and the fund feels flattered by proxy."
+    assert "mild conviction at most" in reasons(run([buy("TEL", "firm", reason=why)]))[0]
+    assert run([buy("TEL", "mild", reason=why)]).accepted
+    b = book([pos("TEL", 10_000)], cash=90_000)
+    r = run([buy("TEL", "mild", reason=why)], b=b, verdicts=[{"ticker": "TEL", "verdict": "strengthened"}])
+    assert "never a reason to add" in reasons(r)[0]
+    # An event is fine at any conviction
+    assert run([buy("TEL", "strong", reason="The connector maker raised its full-year outlook.")]).accepted
+
+
+def test_recent_sales_dont_count_against_the_cash_limit():
+    sessions = ["2026-11-02", "2026-11-03", "2026-11-04", "2026-11-05"]
+    trades = [
+        {"date": "2026-11-02", "action": "sell", "status": "filled", "dollars": 9_000},  # 4 sessions ago: counts
+        {"date": "2026-11-04", "action": "sell", "status": "filled", "dollars": 5_000},
+        {"date": "2026-11-05", "action": "sell", "status": "filled", "dollars": 3_000},
+        {"date": "2026-11-05", "action": "buy", "status": "filled", "dollars": 2_000},
+    ]
+    assert v.recent_sale_cash(trades, sessions, "2026-11-05") == 8_000
+    # 12% cash, Optimistic allows 5%, but 8% of it is fresh sale money
+    c = v.cash_check(12_000, 100_000, 8_000, 0.4, day_number=10)
+    assert c == {"cash_pct": 12.0, "counted_cash_pct": 4.0, "target_pct": 5.0, "on_target": True}
+    assert not v.cash_check(12_000, 100_000, 0, 0.4, day_number=10)["on_target"]
+    assert v.cash_check(12_000, 100_000, 0, 0.4, day_number=3) is None
 
 
 # -- sells ----------------------------------------------------------------

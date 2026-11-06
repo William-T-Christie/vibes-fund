@@ -52,7 +52,7 @@ def test_full_day(fake_alpaca):
     trades = [
         {"action": "buy", "ticker": "AAPL", "kind": "direct", "conviction": "strong",
          "reason": "Roundness is underpriced.", "headline_id": "h1"},
-        {"action": "buy", "ticker": "KO", "kind": "direct", "conviction": "total",
+        {"action": "buy", "ticker": "KO", "kind": "direct", "conviction": "total", "catalyst": "earnings_beat",
          "reason": "Fizz is a feeling.", "headline_id": "h2"},
         {"action": "buy", "ticker": "TQQQ", "kind": "leap", "conviction": "firm", "reason": "Speed.", "headline_id": "h1"},
         {"action": "buy", "ticker": "MSFT", "kind": "leap", "conviction": "mega", "reason": "Too much.",
@@ -70,8 +70,8 @@ def test_full_day(fake_alpaca):
     log = store.read("trades.json")["trades"]
     declined = {t["ticker"]: t["compliance"] for t in log if t["status"] == "declined"}
     assert "leveraged" in declined["TQQQ"] and "not mild, firm" in declined["MSFT"]
-    kinds = {t["ticker"]: (t["kind"], t["conviction"]) for t in log if t["status"] == "filled"}
-    assert kinds == {"AAPL": ("direct", "strong"), "KO": ("direct", "total")}
+    kinds = {t["ticker"]: (t["kind"], t["conviction"], t["catalyst"]) for t in log if t["status"] == "filled"}
+    assert kinds == {"AAPL": ("direct", "strong", "event"), "KO": ("direct", "total", "earnings_beat")}
     state = store.fund_state()
     assert state["inception"] == DAY
     assert abs(state["slippage_reserve_total"] - 35.0) < 0.01  # 0.10% of $35,000
@@ -207,6 +207,21 @@ def test_book_review_context_and_fading(fake_alpaca):
     note = [t for t in store.read("trades.json")["trades"] if t["status"] == "note"]
     assert note and note[0]["reason"] == "The Chairman felt Euphoric and remained 84% in cash."
     s = store.read("summary.json")
-    assert s["cash_vs_mood"] == {"cash_pct": 84.0, "target_pct": 5.0, "on_target": False}
+    assert s["cash_vs_mood"] == {"cash_pct": 84.0, "counted_cash_pct": 84.0, "target_pct": 5.0, "on_target": False}
     h = {x["ticker"]: x for x in store.read("holdings.json")["holdings"]}
     assert h["KO"]["verdict"] == "intact" and h["KO"]["verdict_note"] == "Fizz endures, as fizz does."
+
+
+def test_drift_window_in_the_book(fake_alpaca):
+    c = make_client(fake_alpaca)
+    days = seed_week()
+    trades = store.read("trades.json")
+    trades["trades"][1]["catalyst"] = "earnings_beat"  # AAPL bought on a beat two sessions ago
+    trades["trades"][0]["catalyst"] = "earnings_beat"  # KO bought on a beat 18 sessions ago
+    store.write("trades.json", trades)
+    c.qty, c.cost, c.cash = {"KO": 100.0, "AAPL": 50.0}, {"KO": 6000.0, "AAPL": 10000.0}, 84_000
+    work = morning.prepare(c, now=datetime(2026, 11, 5, 9, 40, tzinfo=clock.ET))
+    p = {x["ticker"]: x for x in work["book"]["positions"]}
+    assert p["AAPL"]["drift_days_left"] == config.DRIFT_DAYS - 2
+    assert p["KO"]["drift_days_left"] == config.DRIFT_DAYS - len(days)
+    assert not p["KO"]["fading"]  # the fading clock waits for the drift window to end

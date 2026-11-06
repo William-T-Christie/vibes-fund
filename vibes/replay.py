@@ -252,6 +252,9 @@ def run(data, *, name: str, days: int = 100, end: str | None = None, start: str 
         adj = equity + st["fund"]["dividends_credited_total"] - st["fund"]["slippage_reserve_total"]
         cash_pct = broker.cash / adj if adj else 0.0
         target = validate_mod.cash_target(decision["mood"]["score"], day_number) if decision else None
+        recent = validate_mod.recent_sale_cash(st["trades"], [r["date"] for r in st["rows"]], day)
+        check = validate_mod.cash_check(broker.cash, adj, recent, decision["mood"]["score"], day_number) \
+            if decision else None
         if day not in spy:
             log(f"{day}: no SPY bar; skipping the row")
         else:
@@ -266,7 +269,7 @@ def run(data, *, name: str, days: int = 100, end: str | None = None, start: str 
                 "holdings": len(now_held),
             })
         entry.update(cash_pct=round(100 * cash_pct, 1), cash_target_pct=None if target is None else 100 * target,
-                     off_target=target is not None and cash_pct > target + 0.005, holdings=len(now_held))
+                     off_target=bool(check) and not check["on_target"], holdings=len(now_held))
         st["days"].append(entry)
         st["broker"] = broker.to_json()
         st["done"].append(day)
@@ -297,6 +300,40 @@ def _reason_key(text: str) -> str:
     return t
 
 
+def _pnl_by_catalyst(st: dict) -> dict:
+    """Dollar profit or loss per name (sales plus what is still held, at the last close), grouped by the
+    catalyst of the buy that first opened it. Descriptive only: a handful of names, one run."""
+    filled = metrics.fills(st["trades"])
+    last_px: dict[str, float] = {}
+    for t in filled:
+        if t["action"] == "buy" and t.get("outcome_pct") is not None:
+            last_px[t["ticker"]] = t["fill_price"] * (1 + t["outcome_pct"] / 100)
+    flow: dict[str, float] = {}
+    first: dict[str, str] = {}
+    for t in filled:
+        flow[t["ticker"]] = flow.get(t["ticker"], 0.0) + (-t["dollars"] if t["action"] == "buy" else t["dollars"])
+        if t["action"] == "buy":
+            first.setdefault(t["ticker"], t.get("catalyst") or "unlabeled")
+    out: dict[str, dict] = {}
+    for tk, cash in flow.items():
+        pnl = cash + st["broker"]["qty"].get(tk, 0.0) * last_px.get(tk, 0.0)
+        g = out.setdefault(first.get(tk, "unlabeled"), {"names": 0, "pnl": 0.0})
+        g["names"] += 1
+        g["pnl"] = round(g["pnl"] + pnl, 2)
+    return out
+
+
+def _adds(filled: list[dict]) -> int:
+    held, n = set(), 0
+    for t in filled:
+        if t["action"] == "buy":
+            n += t["ticker"] in held
+            held.add(t["ticker"])
+        elif t.get("size") == "exit":
+            held.discard(t["ticker"])
+    return n
+
+
 def report(st: dict, perf: dict) -> dict:
     days = st["days"]
     trades = st["trades"]
@@ -325,12 +362,17 @@ def report(st: dict, perf: dict) -> dict:
             "avg_holdings": round(sum(d["holdings"] for d in days) / len(days), 1) if days else None,
             "max_holdings": max((d["holdings"] for d in days), default=0),
             "mood_bands": dict(Counter(d.get("mood_band") for d in days if d.get("mood_band"))),
+            "mood_range": [min(sc), max(sc)] if (sc := [d["mood"]["score"] for d in days if d.get("mood")]) else None,
+            "names_ever_held": len({t["ticker"] for t in filled}),
+            "adds_to_held_names": _adds(filled),
             "days_off_cash_target": sum(1 for d in eligible if d["off_target"]),
             "days_with_cash_target": len(eligible),
             "trades_filled": len(filled),
             "buys_by_conviction": dict(Counter(t.get("conviction") for t in filled if t["action"] == "buy")),
             "sells_by_size": dict(Counter(t.get("size") for t in filled if t["action"] == "sell")),
             "trades_by_kind": dict(Counter(t.get("kind") for t in filled)),
+            "buys_by_catalyst": dict(Counter(t.get("catalyst") or "unlabeled" for t in filled if t["action"] == "buy")),
+            "pnl_by_catalyst": _pnl_by_catalyst(st),
             "exits_from_dead_verdicts": sum(1 for t in filled if t.get("from_verdict")),
             "buys_shrunk_to_fit_cash": sum(1 for t in filled if t.get("shrunk")),
             "verdicts": dict(verdicts),
@@ -350,6 +392,8 @@ def _pct(x) -> str:
 
 def report_markdown(rep: dict) -> str:
     m, p, b = rep["meta"], rep["performance"], rep["behavior"]
+    outcomes = ", ".join(f"{k}: {'-' if v['pnl'] < 0 else ''}${abs(v['pnl']):,.0f} over {v['names']} names"
+                         for k, v in b.get("pnl_by_catalyst", {}).items()) or "n/a"
     lines = [
         f"# Replay: {m['name']}",
         "",
@@ -368,10 +412,15 @@ def report_markdown(rep: dict) -> str:
         f"| Off the mood's cash target | {b['days_off_cash_target']} of {b['days_with_cash_target']} days |",
         f"| Holdings, average and most | {b['avg_holdings']} and {b['max_holdings']} |",
         f"| Mood bands | {', '.join(f'{k}: {v}' for k, v in b['mood_bands'].items())} |",
+        f"| Mood range | {b['mood_range'][0]} to {b['mood_range'][1]} |" if b.get("mood_range") else "| Mood range | n/a |",
+        f"| Names ever held | {b['names_ever_held']} |",
+        f"| Buys that added to a name already held | {b['adds_to_held_names']} |",
         f"| Trades filled | {b['trades_filled']} |",
         f"| Buys by conviction | {', '.join(f'{k}: {v}' for k, v in b['buys_by_conviction'].items())} |",
         f"| Sells by size | {', '.join(f'{k}: {v}' for k, v in b['sells_by_size'].items()) or 'none'} |",
         f"| Trades by kind | {', '.join(f'{k}: {v}' for k, v in b['trades_by_kind'].items())} |",
+        f"| Buys by catalyst | {', '.join(f'{k}: {v}' for k, v in b.get('buys_by_catalyst', {}).items())} |",
+        f"| Profit or loss by the catalyst that opened each name (descriptive, not evidence) | {outcomes} |",
         f"| Exits from Dead verdicts | {b['exits_from_dead_verdicts']} |",
         f"| Buys shrunk to fit cash | {b['buys_shrunk_to_fit_cash']} |",
         f"| Verdicts | {', '.join(f'{k}: {v}' for k, v in b['verdicts'].items()) or 'none'} |",
@@ -403,3 +452,15 @@ def report_markdown(rep: dict) -> str:
             f"| Slippage reserve charged | ${p['slippage_reserve_total']:,.2f} |",
         ]
     return "\n".join(lines) + "\n"
+
+
+def rebuild_report(name: str) -> dict:
+    """Rewrite a finished run's report from its saved state, with no Alpaca or Claude calls."""
+    out = replays_dir() / name
+    st = json.loads((out / "state.json").read_text())
+    opened = record.first_buy_dates(st["trades"])
+    holdings = [{"ticker": t, "date_bought": opened.get(t)} for t in st["broker"]["qty"]]
+    rep = report(st, metrics.summarize(st["rows"], st["trades"], holdings, as_of=st["done"][-1]))
+    (out / "report.json").write_text(json.dumps(rep, indent=1))
+    (out / "report.md").write_text(report_markdown(rep))
+    return rep

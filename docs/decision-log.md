@@ -27,6 +27,8 @@ Snapshot as of Nov 5, 2026. Where this log and an older doc disagree, this log i
 
 - Approved Nov 5 and built (prompt version 2026-11-05.2): mood sets cash, code sizes trades from a conviction level (Mild 5%, Firm 10%, Strong 15%, Total 20%), sells are Trim or Exit, trades are labeled Direct, Sector or Leap (at most 2 leaps a day), every holding gets a daily verdict, and a holding with no supporting headline for 15 trading days must be reaffirmed or trimmed.
 - Never sells on price alone; Compliance declines reasons about a falling share price.
+- Revised after the first private replay (prompt 2026-11-05.3): sale proceeds from the last 3 trading days don't count against the mood's cash limit; adds need a Strengthened verdict; analyst opinions are capped at Mild and never justify an add; the prompt anchors the mood scale. Judged on behavior, not on the replayed return.
+- Earnings drift added Nov 5 (prompt 2026-11-05.4): catalyst labels, Total reserved for earnings beats, a 30 trading day drift window, and trims only on a Weakened or Dead verdict. A replay on Jan 21 to Jun 12 fixed the churn; drift itself did not pay in that one run, which is too small a sample to judge.
 
 ## Name
 

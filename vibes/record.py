@@ -13,7 +13,7 @@ from datetime import date, datetime, timedelta, timezone
 
 from . import clock, config, metrics, store
 from .alpaca import Alpaca
-from .validate import cash_target
+from .validate import cash_check as check_cash, recent_sale_cash
 
 
 def first_buy_dates(trades: list[dict]) -> dict[str, str]:
@@ -174,19 +174,18 @@ def run(client: Alpaca, now: datetime | None = None) -> dict:
     today_log = store.read_log(day, "decision.json") or {}
     cash_check = None
     if day in written and today_log.get("decision"):
-        target = cash_target(today_log["decision"]["mood"]["score"], today_log.get("day_number", 1))
         adj_now = nav["rows"][-1]["nav"]
-        cash_pct = float(acct["cash"]) / adj_now if adj_now else 0.0
-        if target is not None:
-            on = cash_pct <= target + 0.005
+        recent = recent_sale_cash(trades, [r["date"] for r in nav["rows"]], day)
+        cash_check = check_cash(float(acct["cash"]), adj_now, recent, today_log["decision"]["mood"]["score"],
+                                today_log.get("day_number", 1))
+        if cash_check:
             band = today_log.get("mood_band")
-            cash_check = {"cash_pct": round(100 * cash_pct, 1), "target_pct": round(100 * target, 1), "on_target": on}
             nav["rows"][-1].update(cash_pct=cash_check["cash_pct"], cash_target_pct=cash_check["target_pct"])
-            if not on:
+            if not cash_check["on_target"]:
                 trades.append({
                     "date": day, "action": "note", "ticker": "", "status": "note", "dollars": 0.0, "qty": 0.0,
                     "fill_price": None, "outcome_pct": None, "link": None,
-                    "reason": f"The Chairman felt {band} and remained {100 * cash_pct:.0f}% in cash.",
+                    "reason": f"The Chairman felt {band} and remained {cash_check['cash_pct']:.0f}% in cash.",
                 })
     verdicts = {}
     for v in (today_log.get("decision") or {}).get("book", []) or []:

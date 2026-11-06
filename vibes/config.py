@@ -77,9 +77,13 @@ BANNED_TICKERS = {
 CONVICTION = {"mild": 0.05, "firm": 0.10, "strong": 0.15, "total": 0.20}  # share of NAV per buy
 SELL_SIZES = {"trim": 0.5, "exit": 1.0}
 TRADE_KINDS = ("direct", "sector", "leap")
+# What a trade is based on. Earnings drift: after a beat-and-raise, prices tend to keep moving for weeks.
+CATALYSTS = ("earnings_beat", "earnings_miss", "event", "opinion")
+DRIFT_DAYS = 30  # trading days a position opened on an earnings beat is held unless the news turns
 MAX_LEAPS_PER_DAY = 2
 VERDICTS = ("intact", "strengthened", "weakened", "dead")
 FADING_DAYS = 15  # trading days without a supporting headline
+RECENT_SALE_DAYS = 3  # sale proceeds this recent don't count against the mood's cash limit
 SIZE_ROUNDING = 100  # dollars round down to this
 # Most cash allowed in each mood once the first week is over (the 30% rule stays the hard limit).
 MOOD_CASH_CEILING = {"Doom": 0.30, "Nervous": 0.20, "Unbothered": 0.10, "Optimistic": 0.05, "Euphoric": 0.05}

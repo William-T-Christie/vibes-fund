@@ -33,17 +33,19 @@ class Alpaca:
 
     # -- plumbing ---------------------------------------------------------
     def _req(self, method: str, base: str, path: str, *, retry: bool = True, **kw) -> Any:
+        """Retry dropped connections and 5xx errors up to 3 times with backoff. Orders pass retry=False."""
         url = base + path
-        for attempt in (1, 2):
+        tries = 4 if retry else 1
+        for attempt in range(1, tries + 1):
             try:
                 r = self.s.request(method, url, timeout=30, **kw)
             except requests.RequestException:
-                if attempt == 1 and retry:
-                    time.sleep(3)
+                if attempt < tries:
+                    time.sleep(3 * attempt)
                     continue
                 raise
-            if r.status_code >= 500 and attempt == 1 and retry:
-                time.sleep(3)
+            if r.status_code >= 500 and attempt < tries:
+                time.sleep(3 * attempt)
                 continue
             if r.status_code >= 400:
                 raise AlpacaError(r.status_code, r.text)

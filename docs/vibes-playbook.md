@@ -1,6 +1,6 @@
 # Vibes Fund: The Vibes Playbook
 
-Nov 5, 2026 · Approved by William and built (prompt version 2026-11-05.2)
+Nov 5, 2026 · Approved by William and built (prompt version 2026-11-05.4)
 
 ## Summary
 
@@ -9,6 +9,39 @@ The playbook is how a morning of headlines becomes trades. Today the prompt only
 The method in one line: **read the room, review the book, find the story, size by conviction.**
 
 Vibes only. No price charts, momentum, stop losses or backtests. The fund reacts to the news and nothing else, and it never sells because a price fell, only because the vibe changed.
+
+## Revision after the first replay (prompt 2026-11-05.3)
+
+A private 100-day replay (`docs/replay.md`) showed three behavior problems. These changes fix how the fund reads the news and stop losses it caused itself. They were not tuned to raise the replayed return.
+
+| Problem in the replay | Change |
+| --- | --- |
+| Trims pushed cash over the 5% target, so the fund bought the same names back: 25 trims, 22 adds, only 4 exits, 3.7x turnover | Sale proceeds from the last 3 trading days don't count against the mood's cash limit. Adds need a Strengthened verdict that morning, enforced in code |
+| The mood ran only from -0.35 to +0.4, so the site would be blue or green 92 days in 100 | The prompt gives anchors for -0.8, -0.4, 0, +0.4 and +0.8, scores the news before the book, and says to use the whole scale |
+| 7 of 36 buys followed analyst notes rather than news | Events outrank opinions: a reason built on a rating or price target is capped at Mild and can never be an add, enforced in code |
+
+## Earnings drift (prompt 2026-11-05.4)
+
+After a company beats estimates and raises guidance, its price tends to keep drifting the way of the news for weeks. It is the best documented news effect there is, and it is still trading on the news. Approved by William Nov 5.
+
+- Every trade carries a `catalyst`: `earnings_beat`, `earnings_miss`, `event` or `opinion`.
+- Total conviction is reserved for an earnings beat. The fund never buys on an earnings miss.
+- A position opened on an earnings beat has a 30 trading day drift window. Inside it, the position can only be sold on a Weakened or Dead verdict, and the fading clock doesn't run.
+- An earnings miss on a holding is Weakened at least; a guidance cut is Dead.
+- Any trim needs that morning's verdict to be Weakened or Dead. Exits to make room, or to end a fading holding, need no verdict.
+
+**What the private replays showed** (`docs/replay.md`; one run each, descriptive only):
+
+| Run | Window | Prompt | Fund vs SPY | Trims | Adds | New positions | Exits | Mood range |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Jun 15 to Nov 4 | .2 | -7.3% vs +2.5% | 25 | 22 | 14 | 4 | -0.35 to +0.40 |
+| 2 | Jun 15 to Nov 4 | .3 | -0.4% vs +2.5% | 28 | 19 | 15 | 5 | -0.40 to +0.35 |
+| 3 | Jan 21 to Jun 12 | .4 | +1.3% vs +9.4% | 9 | 11 | 23 | 13 | -0.55 to +0.55 |
+
+- The churn is fixed by the trim rule, not by the cash exemption: run 3 rotated (22 names, 13 exits) instead of trimming and rebuying.
+- Drift did not pay in run 3: names opened on an earnings beat lost $4,257 in all, while names opened on other events made $5,998. Eleven names in one run is far too few to judge the effect either way.
+- The fund held up better than SPY in the March selloff and lagged the April to June rebound.
+- The mood still never reached Doom or Euphoric. The live fund also reads general news, which may widen it; revisit after the dry run.
 
 ## Decisions (all approved Nov 5)
 
