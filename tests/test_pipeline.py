@@ -54,7 +54,7 @@ def test_full_day(fake_alpaca):
          "reason": "Roundness is underpriced.", "headline_id": "h1"},
         {"action": "buy", "ticker": "KO", "kind": "direct", "conviction": "total", "catalyst": "earnings_beat",
          "reason": "Fizz is a feeling.", "headline_id": "h2"},
-        {"action": "buy", "ticker": "TQQQ", "kind": "leap", "conviction": "firm", "reason": "Speed.", "headline_id": "h1"},
+        {"action": "buy", "ticker": "TQQQ", "kind": "leap", "conviction": "strong", "reason": "Speed.", "headline_id": "h1"},
         {"action": "buy", "ticker": "MSFT", "kind": "leap", "conviction": "mega", "reason": "Too much.",
          "headline_id": "h1"},
     ]
@@ -69,12 +69,12 @@ def test_full_day(fake_alpaca):
     assert set(c.qty) == {"AAPL", "KO"}
     log = store.read("trades.json")["trades"]
     declined = {t["ticker"]: t["compliance"] for t in log if t["status"] == "declined"}
-    assert "leveraged" in declined["TQQQ"] and "not mild, firm" in declined["MSFT"]
+    assert "top out at a firm" in declined["TQQQ"] and "not mild, firm" in declined["MSFT"]
     kinds = {t["ticker"]: (t["kind"], t["conviction"], t["catalyst"]) for t in log if t["status"] == "filled"}
     assert kinds == {"AAPL": ("direct", "strong", "event"), "KO": ("direct", "total", "earnings_beat")}
     state = store.fund_state()
     assert state["inception"] == DAY
-    assert abs(state["slippage_reserve_total"] - 35.0) < 0.01  # 0.10% of $35,000
+    assert abs(state["slippage_reserve_total"] - 65.0) < 0.01  # 0.10% of $65,000
     assert state["last_support"] == {"AAPL": DAY, "KO": DAY}
 
     # A second run the same morning places nothing
@@ -87,8 +87,8 @@ def test_full_day(fake_alpaca):
     out = record.run(c, now=datetime(2026, 11, 5, 16, 30, tzinfo=clock.ET))
     assert out["status"] == "recorded" and out["days"] == [DAY]
     row = store.read("nav.json")["rows"][-1]
-    raw = 100_000 + 75 * 10  # 75 AAPL shares gained $10 each
-    assert row["raw_equity"] == raw and row["nav"] == round(raw - 35.0, 2)
+    raw = 100_000 + 150 * 10  # 150 AAPL shares gained $10 each
+    assert row["raw_equity"] == raw and row["nav"] == round(raw - 65.0, 2)
     assert "cash_pct" not in row  # first week: no mood cash target
     assert row["mood_band"] == "Optimistic"
     summary = store.read("summary.json")
@@ -204,10 +204,12 @@ def test_book_review_context_and_fading(fake_alpaca):
     # Euphoric with 84% cash: the evening log calls it out
     out = record.run(c, now=datetime(2026, 11, 5, 16, 30, tzinfo=clock.ET))
     assert out["status"] == "recorded"
-    note = [t for t in store.read("trades.json")["trades"] if t["status"] == "note"]
-    assert note and note[0]["reason"] == "The Chairman felt Euphoric and remained 84% in cash."
+    notes = [t for t in store.read("trades.json")["trades"] if t["status"] == "note"]
+    assert [n["reason"] for n in notes if not n.get("note_kind")] == ["The Chairman felt Euphoric and remained 84% in cash."]
+    assert [n["reason"] for n in notes if n.get("note_kind") == "declined_leverage"] == [
+        "The Chairman felt Euphoric and declined the bull fund."]
     s = store.read("summary.json")
-    assert s["cash_vs_mood"] == {"cash_pct": 84.0, "counted_cash_pct": 84.0, "target_pct": 5.0, "on_target": False}
+    assert s["cash_vs_mood"] == {"cash_pct": 84.0, "counted_cash_pct": 84.0, "target_pct": 0.0, "on_target": False}
     h = {x["ticker"]: x for x in store.read("holdings.json")["holdings"]}
     assert h["KO"]["verdict"] == "intact" and h["KO"]["verdict_note"] == "Fizz endures, as fizz does."
 

@@ -140,6 +140,7 @@ def prepare(client: Alpaca, now: datetime | None = None) -> dict:
         "book": book,
         "headlines": headlines,
         "recent_reasons": [t["reason"] for t in trades[-5:]],
+        "wild_card_used": validate_mod.wild_card_used_this_week(trades, day),
     }
     store.write_work("morning.json", out)
     store.write_log(day, "headlines.json", {"window_start": prev_close.isoformat(), "window_end": now.isoformat(),
@@ -158,7 +159,8 @@ def decide(caller=decide_mod.call_claude) -> dict:
         return work
     day = work["date"]
     prompt = decide_mod.build_prompt(date=day, day_number=work["day_number"], book=work["book"],
-                                     headlines=work["headlines"], recent_reasons=work["recent_reasons"])
+                                     headlines=work["headlines"], recent_reasons=work["recent_reasons"],
+                                     wild_card_used=work.get("wild_card_used", False))
     decision, attempts = decide_mod.decide(prompt, caller)
     store.write_log(day, "claude_raw.json", {"prompt_version": decide_mod.prompt_version(),
                                              "model": config.CLAUDE_MODEL, "attempts": attempts})
@@ -205,13 +207,16 @@ def run_trades(client: Alpaca, *, sleep=None) -> dict:
 
     named = [t for t in decision["trades"] if isinstance(t, dict)]
     named += [v for v in decision.get("book", []) if isinstance(v, dict) and v.get("verdict") == "dead"]
-    tickers = sorted({str(t.get("ticker", "")).upper() for t in named} - {""})
+    tickers = sorted(({str(t.get("ticker", "")).upper() for t in named}
+                      | {p["ticker"] for p in work["book"]["positions"]}) - {""})
     assets = {t: client.asset(t) for t in tickers if validate_mod.TICKER_RE.match(t)}
     liq = trade_mod.liquidity(client, [t for t in tickers if assets.get(t)], day)
     links = {h["id"]: h["link"] for h in work["headlines"]}
     state = store.fund_state()
     result = validate_mod.validate(decision, book=work["book"], day_number=work["day_number"], assets=assets,
-                                   liquidity=liq, headline_links=links, paused_names=state.get("paused_names"))
+                                   liquidity=liq, headline_links=links, paused_names=state.get("paused_names"),
+                                   wild_card_used=validate_mod.wild_card_used_this_week(
+                                       store.read("trades.json", {"trades": []})["trades"], day))
     target = validate_mod.cash_target(decision["mood"]["score"], work["day_number"])
     nav = work["book"]["nav"]
     store.write_log(day, "validation.json", {
@@ -226,13 +231,22 @@ def run_trades(client: Alpaca, *, sleep=None) -> dict:
 
     trades = store.read("trades.json", {"trades": []})
     trades["trades"].extend(trade_log_rows(day, records, result.declined, links))
+    missed = validate_mod.declined_leverage(decision["mood"]["score"], work["book"]["positions"], result.accepted)
+    if missed:
+        band = config.mood_band(decision["mood"]["score"])[0]
+        trades["trades"].append({
+            "date": day, "action": "note", "ticker": "", "status": "note", "dollars": 0.0, "qty": 0.0,
+            "fill_price": None, "outcome_pct": None, "link": None, "note_kind": "declined_leverage",
+            "reason": f"The Chairman felt {band} and declined the {missed} fund."
+            + (f" {decision['holds']}" if decision.get("holds") else ""),
+        })
     store.write("trades.json", trades)
 
     update_support(state, day, decision, work["book"]["positions"], records)
     filled_notional = sum(r.get("filled_dollars", 0.0) for r in records if r.get("filled_qty"))
     if filled_notional:
         state["slippage_reserve_total"] = round(
-            state.get("slippage_reserve_total", 0.0) + config.SLIPPAGE_RESERVE * filled_notional, 2)
+            state.get("slippage_reserve_total", 0.0) + validate_mod.slippage_charge(records), 2)
         if not state.get("inception"):
             state["inception"] = day
     store.save_fund_state(state)
@@ -280,6 +294,9 @@ def trade_log_rows(day: str, records: list[dict], declined: list[dict], links: d
             "size": r.get("size"),
             "shrunk": bool(r.get("shrunk")),
             "from_verdict": bool(r.get("from_verdict")),
+            "from_rule": r.get("from_rule"),
+            "leveraged": bool(r.get("leveraged")),
+            "slippage_rate": r.get("slippage_rate"),
             "broker_message": r.get("broker_message"),
             "outcome_pct": None,
         })

@@ -1,6 +1,6 @@
 # Vibes Fund: The Vibes Playbook
 
-Nov 5, 2026 · Approved by William and built (prompt version 2026-11-05.4)
+Nov 6, 2026 · Approved by William and built (prompt version 2026-11-06.1). Sections 1 to 7 below are the original Nov 5 draft; the revision sections above them override any number that differs.
 
 ## Summary
 
@@ -42,6 +42,26 @@ After a company beats estimates and raises guidance, its price tends to keep dri
 - Drift did not pay in run 3: names opened on an earnings beat lost $4,257 in all, while names opened on other events made $5,998. Eleven names in one run is far too few to judge the effect either way.
 - The fund held up better than SPY in the March selloff and lagged the April to June rebound.
 - The mood still never reached Doom or Euphoric. The live fund also reads general news, which may widen it; revisit after the dry run.
+
+## High conviction and leverage (prompts 2026-11-05.5 and 2026-11-06.1)
+
+William asked for more volatility: a fund that clearly beats or clearly trails SPY, and makes the occasional crazy bet, is a better show than one that drifts a few points behind. More volatility does not raise the expected result; it widens the range of outcomes. Approved Nov 5 and 6.
+
+| Rule | Before | Now |
+| --- | --- | --- |
+| Holdings | 5 to 10 | 3 to 6 (a leveraged fund doesn't count toward the 6) |
+| Most in one name | 20% | 35% |
+| Mild, Firm, Strong, Total | 5, 10, 15, 20% | 10, 20, 30, 35%; Strong is the normal size for a real event |
+| Most cash by mood | Doom 30% to Euphoric 5% | Doom 50%, Nervous 30%, Unbothered 15%, Optimistic 5%, Euphoric 0% |
+| Leaps | 2 a day | 3 a day, plus one wild card a week, played by Friday, up to Strong |
+| Liquidity floor | $50M a day | $20M a day |
+| Slippage reserve | 0.10% | 0.10%, or 0.25% for names under $200M a day |
+
+**Leveraged funds.** Only an approved list of broad and sector index funds (bull: QLD, SSO, TQQQ, UPRO, SPXL, TNA, SOXL, TECL, FAS, ERX, LABU; bear: PSQ, SH, QID, SDS, SQQQ, SPXU, SPXS, TZA, SOXS, FAZ, LABD). Single-stock leveraged funds and volatility products stay banned. Bull funds only on mornings at +0.4 or better, bear funds at -0.4 or worse; one at a time, Mild or Firm. When the mood crosses zero the other way, Compliance sells it. On an extreme morning the Chairman is expected to buy one; if he doesn't, the trade log prints "The Chairman felt Doom and declined the bear fund."
+
+**Shorts** stay out for now: losses are uncapped, Alpaca's paper account doesn't charge borrow fees (so it would flatter results), and it needs margin. The bear funds cover the downside bet.
+
+**Replays.** Run 4 (prompt .5, Jan 21 to Jun 12) doubled volatility to 31% against SPY's 14%, with a -15.6% drawdown, but never used a leveraged fund or the wild card, even with 12 mornings at -0.4 or worse. Prompt .6 makes both expected rather than optional. Run 5 (prompt .6, same window) used them: 6 leveraged trades, no leverage declined, 16 wild cards, and the first Doom and Euphoric mornings (range -0.65 to +0.65). It finished +11.6% against SPY's +9.4%, the first run ahead, but was ahead on only 12 of 100 days, swung at 32% volatility with a -13.3% drawdown, and turned over 11.9 times its value ($1,278 of slippage reserve). The lead came from one stock: Sandisk, bought on an earnings beat, made $21,800, while leveraged funds lost $4,600, wild cards $2,800 and other events $2,300. A wilder fund, not yet a better one.
 
 ## Decisions (all approved Nov 5)
 

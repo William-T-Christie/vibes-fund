@@ -72,7 +72,20 @@ def prompt_version() -> str:
     return m.group(1) if m else "unknown"
 
 
-def build_prompt(*, date: str, day_number: int, book: dict, headlines: list[dict], recent_reasons: list[str]) -> str:
+def _weekday(day: str) -> str:
+    from datetime import date as _d
+    return _d.fromisoformat(day).strftime("%A")
+
+
+def _cash_table() -> str:
+    rows = ["| Mood | Score | Most cash |", "| --- | --- | --- |"]
+    for label, lo, hi, _ in config.MOOD_BANDS:
+        rows.append(f"| {label} | {lo:+.1f} to {min(hi, 1.0):+.1f} | {int(round(config.MOOD_CASH_CEILING[label] * 100))}% |")
+    return "\n".join(rows)
+
+
+def build_prompt(*, date: str, day_number: int, book: dict, headlines: list[dict], recent_reasons: list[str],
+                 wild_card_used: bool = False) -> str:
     template = config.PROMPT_VERSION_FILE.read_text()
     template = re.sub(r"<!--.*?-->\n?", "", template, flags=re.S)
     nav = book["nav"]
@@ -105,11 +118,24 @@ def build_prompt(*, date: str, day_number: int, book: dict, headlines: list[dict
         fund_name=config.FUND_NAME,
         date=date,
         day_number=day_number,
+        weekday=_weekday(date),
+        wild_card_status=(
+            "This week's wild card has already been played." if wild_card_used else
+            ("This week's wild card has not been played, and it is Friday: play it today."
+             if _weekday(date) == "Friday" else "This week's wild card has not been played yet.")
+        ),
         first_week_note=(
             f" This is the first week: build toward {config.MIN_HOLDINGS} holdings, with firm or strong convictions."
             if day_number <= config.FIRST_WEEK_DAYS else ""
         ),
         fading_days=config.FADING_DAYS,
+        cash_table=_cash_table(),
+        conviction_sizes=", ".join(f"`{k}` ({int(round(v * 100))}% of NAV)" for k, v in config.CONVICTION.items()),
+        bull_min=config.LEVERAGED_BULL_MIN_MOOD,
+        bear_max=config.LEVERAGED_BEAR_MAX_MOOD,
+        bull_funds=", ".join(f"{t} ({x}x)" for t, (d, x) in config.LEVERAGED_ALLOWED.items() if d == "bull"),
+        bear_funds=", ".join(f"{t} ({x}x)" for t, (d, x) in config.LEVERAGED_ALLOWED.items() if d == "bear"),
+        liquidity_floor_m=int(config.MIN_AVG_DOLLAR_VOLUME / 1e6),
         drift_days=config.DRIFT_DAYS,
         max_leaps=config.MAX_LEAPS_PER_DAY,
         sector_funds=", ".join(f"{k} {v}" for k, v in config.SECTOR_FUNDS.items()),

@@ -79,9 +79,9 @@ The fund is long only and concentrated, so the chart moves and every trade is ea
 | Rule | Setting |
 | --- | --- |
 | Starting capital | $100,000 paper; inception day is go live day |
-| What it can buy | US listed stocks and ETFs only. No options, crypto, shorts, or margin |
-| Positions | 5 to 10 holdings at all times after the first week |
-| Position cap | 20% of NAV per name at purchase |
+| What it can buy | US listed stocks and ETFs only, plus an approved list of leveraged index funds gated by the mood (added Nov 6). No options, crypto, shorts, or margin |
+| Positions | 3 to 6 holdings after the first week (changed Nov 6; see the decision log) |
+| Position cap | 35% of NAV per name (changed Nov 6) |
 | Cash | 0% to 30% of NAV; above 30% counts as a "defensive" call and must be explained |
 | Trades per day | Up to 4 buys or sells, so the log stays readable |
 | Order type | Market orders, sized in dollars, placed once a day at 9:40 AM ET |

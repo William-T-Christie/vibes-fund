@@ -29,6 +29,8 @@ Snapshot as of Nov 5, 2026. Where this log and an older doc disagree, this log i
 - Never sells on price alone; Compliance declines reasons about a falling share price.
 - Revised after the first private replay (prompt 2026-11-05.3): sale proceeds from the last 3 trading days don't count against the mood's cash limit; adds need a Strengthened verdict; analyst opinions are capped at Mild and never justify an add; the prompt anchors the mood scale. Judged on behavior, not on the replayed return.
 - Earnings drift added Nov 5 (prompt 2026-11-05.4): catalyst labels, Total reserved for earnings beats, a 30 trading day drift window, and trims only on a Weakened or Dead verdict. A replay on Jan 21 to Jun 12 fixed the churn; drift itself did not pay in that one run, which is too small a sample to judge.
+- High conviction added Nov 5 to 6 at William's request, for a more volatile, more interesting chart (prompts 2026-11-05.5 and 2026-11-06.1): 3 to 6 holdings, a 35% cap, sizes of 10/20/30/35%, mood cash limits from Doom 50% to Euphoric 0%, 3 leaps a day plus a weekly wild card, a $20M liquidity floor with a 0.25% slippage reserve under $200M a day.
+- Leveraged and inverse index funds allowed from an approved list, one at a time, only on mornings at +0.4 or better (bull) or -0.4 or worse (bear), sold automatically when the mood crosses zero. Single-stock leveraged funds and volatility products stay banned. Shorting stays banned.
 
 ## Name
 

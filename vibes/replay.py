@@ -208,7 +208,8 @@ def run(data, *, name: str, days: int = 100, end: str | None = None, start: str 
             else:
                 prompt = decide_mod.build_prompt(date=day, day_number=day_number, book=book, headlines=headlines,
                                                  recent_reasons=[t["reason"] for t in st["trades"]
-                                                                 if t.get("status") == "filled"][-5:])
+                                                                 if t.get("status") == "filled"][-5:],
+                                                 wild_card_used=validate_mod.wild_card_used_this_week(st["trades"], day))
                 decision, attempts = decide_mod.decide(prompt, caller)
                 if decision is None:
                     # Most likely a usage limit. Stop rather than record a hole; the same name resumes here.
@@ -222,7 +223,8 @@ def run(data, *, name: str, days: int = 100, end: str | None = None, start: str 
         if decision:
             named = [t for t in decision["trades"] if isinstance(t, dict)]
             named += [v for v in decision.get("book", []) if isinstance(v, dict) and v.get("verdict") == "dead"]
-            tickers = sorted({str(t.get("ticker", "")).upper() for t in named} - {""})
+            tickers = sorted(({str(t.get("ticker", "")).upper() for t in named}
+                              | {p["ticker"] for p in book["positions"]}) - {""})
             for t in tickers:
                 if t not in assets_cache and validate_mod.TICKER_RE.match(t):
                     assets_cache[t] = data.asset(t)
@@ -230,15 +232,24 @@ def run(data, *, name: str, days: int = 100, end: str | None = None, start: str 
             links = {h["id"]: h["link"] for h in headlines}
             result = validate_mod.validate(decision, book=book, day_number=day_number,
                                            assets={t: assets_cache.get(t) for t in tickers}, liquidity=liq,
-                                           headline_links=links, paused_names=[])
+                                           headline_links=links, paused_names=[],
+                                           wild_card_used=validate_mod.wild_card_used_this_week(st["trades"], day))
             if result.accepted:
                 broker.prices.update(fill_prices(data, sorted({t["ticker"] for t in result.accepted} | set(held)), day))
                 records = trade_mod.execute(broker, day, result.accepted, sleep=lambda s: None, window_minutes=1)
             st["trades"].extend(morning.trade_log_rows(day, records, result.declined, links))
+            missed = validate_mod.declined_leverage(decision["mood"]["score"], book["positions"], result.accepted)
+            if missed:
+                band = config.mood_band(decision["mood"]["score"])[0]
+                st["trades"].append({
+                    "date": day, "action": "note", "ticker": "", "status": "note", "dollars": 0.0, "qty": 0.0,
+                    "fill_price": None, "outcome_pct": None, "link": None, "note_kind": "declined_leverage",
+                    "reason": f"The Chairman felt {band} and declined the {missed} fund."
+                    + (f" {decision['holds']}" if decision.get("holds") else ""),
+                })
             morning.update_support(st["fund"], day, decision, book["positions"], records)
-            notional = sum(r.get("filled_dollars", 0.0) for r in records if r.get("filled_qty"))
             st["fund"]["slippage_reserve_total"] = round(
-                st["fund"]["slippage_reserve_total"] + config.SLIPPAGE_RESERVE * notional, 2)
+                st["fund"]["slippage_reserve_total"] + validate_mod.slippage_charge(records), 2)
             entry.update(mood=decision["mood"], mood_band=config.mood_band(decision["mood"]["score"])[0],
                          book=decision.get("book", []), accepted=len(result.accepted), declined=len(result.declined),
                          fading=[p["ticker"] for p in book["positions"] if p.get("fading")])
@@ -374,6 +385,12 @@ def report(st: dict, perf: dict) -> dict:
             "buys_by_catalyst": dict(Counter(t.get("catalyst") or "unlabeled" for t in filled if t["action"] == "buy")),
             "pnl_by_catalyst": _pnl_by_catalyst(st),
             "exits_from_dead_verdicts": sum(1 for t in filled if t.get("from_verdict")),
+            "leveraged_buys": sum(1 for t in filled if t["action"] == "buy" and t.get("leveraged")),
+            "mood_flip_exits": sum(1 for t in filled if t.get("from_rule") == "mood_flip"),
+            "wild_cards": sum(1 for t in filled if t.get("kind") == "wild_card"),
+            "leverage_declined": sum(1 for t in trades if t.get("note_kind") == "declined_leverage"),
+            "extreme_mornings": sum(1 for d in days if d.get("mood") and (
+                d["mood"]["score"] >= config.LEVERAGED_BULL_MIN_MOOD or d["mood"]["score"] <= config.LEVERAGED_BEAR_MAX_MOOD)),
             "buys_shrunk_to_fit_cash": sum(1 for t in filled if t.get("shrunk")),
             "verdicts": dict(verdicts),
             "fading_flags": sum(len(d.get("fading", [])) for d in days),
@@ -422,6 +439,9 @@ def report_markdown(rep: dict) -> str:
         f"| Buys by catalyst | {', '.join(f'{k}: {v}' for k, v in b.get('buys_by_catalyst', {}).items())} |",
         f"| Profit or loss by the catalyst that opened each name (descriptive, not evidence) | {outcomes} |",
         f"| Exits from Dead verdicts | {b['exits_from_dead_verdicts']} |",
+        f"| Leveraged fund buys, and exits forced by a mood flip | {b.get('leveraged_buys', 0)} and {b.get('mood_flip_exits', 0)} |",
+        f"| Mornings extreme enough for a leveraged fund, and leverage declined | {b.get('extreme_mornings', 0)} and {b.get('leverage_declined', 0)} |",
+        f"| Wild cards played | {b.get('wild_cards', 0)} |",
         f"| Buys shrunk to fit cash | {b['buys_shrunk_to_fit_cash']} |",
         f"| Verdicts | {', '.join(f'{k}: {v}' for k, v in b['verdicts'].items()) or 'none'} |",
         f"| Fading flags | {b['fading_flags']} |",

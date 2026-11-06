@@ -18,10 +18,10 @@ CHAIRMAN = "Sir Peregrine Ashby"
 
 # Fund rules
 STARTING_CAPITAL = 100_000.0
-MIN_HOLDINGS = 5          # enforced once the first week (5 trading days) is over
-MAX_HOLDINGS = 10
+MIN_HOLDINGS = 3          # enforced once the first week (5 trading days) is over
+MAX_HOLDINGS = 6          # high conviction: few, big bets
 FIRST_WEEK_DAYS = 5
-POSITION_CAP = 0.20       # of NAV, after the trade
+POSITION_CAP = 0.35       # of NAV, after the trade
 MAX_CASH_NORMAL = 0.30    # above this is a "defensive" call and must be explained
 MAX_TRADES_PER_DAY = 4
 MIN_ORDER_DOLLARS = 1_000.0
@@ -30,7 +30,9 @@ FULL_CLOSE_THRESHOLD = 0.98  # a sell for >= 98% of a position closes it entirel
 
 # Honesty corrections
 SLIPPAGE_RESERVE = 0.0010          # 0.10% of every filled trade's notional, subtracted from NAV
-MIN_AVG_DOLLAR_VOLUME = 50_000_000  # 20-day average daily dollar volume
+SLIPPAGE_RESERVE_THIN = 0.0025     # 0.25% for names trading under $200M a day, which really do cost more
+THIN_DOLLAR_VOLUME = 200_000_000
+MIN_AVG_DOLLAR_VOLUME = 20_000_000  # 20-day average daily dollar volume
 MAX_ORDER_PCT_OF_VOLUME = 0.01      # of the prior session's dollar volume
 LIQUIDITY_LOOKBACK_DAYS = 20
 
@@ -62,31 +64,43 @@ ALPACA_DATA_URL = "https://data.alpaca.markets"
 ALLOWED_EXCHANGES = {"NYSE", "NASDAQ", "ARCA", "AMEX", "BATS"}
 BENCHMARK = "SPY"
 
-# Leveraged and inverse ETFs are banned. Alpaca does not flag them, so match on name.
+# Leveraged and inverse ETFs: only these broad and sector funds, one at a time, gated by the mood.
+# Everything else that looks leveraged (single-stock funds, volatility products) stays banned.
+LEVERAGED_ALLOWED = {
+    # ticker: (direction, leverage)
+    "QLD": ("bull", 2), "SSO": ("bull", 2), "TQQQ": ("bull", 3), "UPRO": ("bull", 3), "SPXL": ("bull", 3),
+    "TNA": ("bull", 3), "SOXL": ("bull", 3), "TECL": ("bull", 3), "FAS": ("bull", 3), "ERX": ("bull", 2),
+    "LABU": ("bull", 3),
+    "PSQ": ("bear", 1), "SH": ("bear", 1), "QID": ("bear", 2), "SDS": ("bear", 2), "SQQQ": ("bear", 3),
+    "SPXU": ("bear", 3), "SPXS": ("bear", 3), "TZA": ("bear", 3), "SOXS": ("bear", 3), "FAZ": ("bear", 3),
+    "LABD": ("bear", 3),
+}
+LEVERAGED_MAX_HOLDINGS = 1
+LEVERAGED_MAX_CONVICTION = "firm"  # 20% of NAV, so at most 60% market exposure
+LEVERAGED_BULL_MIN_MOOD = 0.4      # bull funds only on mornings this good
+LEVERAGED_BEAR_MAX_MOOD = -0.4     # bear funds only on mornings this grim
 LEVERAGED_NAME_MARKERS = (
     # Plain "short" is left out on purpose so short-term Treasury ETFs stay allowed.
     "2x", "3x", "1.5x", "-1x", "ultra", "leveraged", "inverse", "daily bull", "daily bear",
     "short s&p", "short qqq", "short dow", "short russell",
 )
-BANNED_TICKERS = {
-    "TQQQ", "SQQQ", "SPXL", "SPXS", "UPRO", "SPXU", "SH", "PSQ", "SDS", "QID", "QLD", "SSO",
-    "SOXL", "SOXS", "TNA", "TZA", "LABU", "LABD", "UVXY", "SVXY", "VXX", "TSLL", "NVDL",
-}
+BANNED_TICKERS = {"UVXY", "SVXY", "VXX", "VIXY", "TSLL", "NVDL", "TSLQ", "NVDQ", "CONL", "MSTU", "MSTX"}
 
 # The vibes playbook (docs/vibes-playbook.md)
-CONVICTION = {"mild": 0.05, "firm": 0.10, "strong": 0.15, "total": 0.20}  # share of NAV per buy
+CONVICTION = {"mild": 0.10, "firm": 0.20, "strong": 0.30, "total": 0.35}  # share of NAV per buy
 SELL_SIZES = {"trim": 0.5, "exit": 1.0}
-TRADE_KINDS = ("direct", "sector", "leap")
+TRADE_KINDS = ("direct", "sector", "leap", "wild_card")
+WILD_CARDS_PER_WEEK = 1
 # What a trade is based on. Earnings drift: after a beat-and-raise, prices tend to keep moving for weeks.
 CATALYSTS = ("earnings_beat", "earnings_miss", "event", "opinion")
 DRIFT_DAYS = 30  # trading days a position opened on an earnings beat is held unless the news turns
-MAX_LEAPS_PER_DAY = 2
+MAX_LEAPS_PER_DAY = 3
 VERDICTS = ("intact", "strengthened", "weakened", "dead")
 FADING_DAYS = 15  # trading days without a supporting headline
 RECENT_SALE_DAYS = 3  # sale proceeds this recent don't count against the mood's cash limit
 SIZE_ROUNDING = 100  # dollars round down to this
 # Most cash allowed in each mood once the first week is over (the 30% rule stays the hard limit).
-MOOD_CASH_CEILING = {"Doom": 0.30, "Nervous": 0.20, "Unbothered": 0.10, "Optimistic": 0.05, "Euphoric": 0.05}
+MOOD_CASH_CEILING = {"Doom": 0.50, "Nervous": 0.30, "Unbothered": 0.15, "Optimistic": 0.05, "Euphoric": 0.0}
 SECTOR_FUNDS = {
     "XLK": "tech", "XLF": "financials", "XLE": "energy", "XLV": "health care",
     "XLY": "consumer discretionary", "XLP": "consumer staples", "XLI": "industrials",

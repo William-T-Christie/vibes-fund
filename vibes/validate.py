@@ -53,8 +53,8 @@ def check_asset(ticker: str, asset: dict | None) -> str | None:
         return f"{ticker} is not a US stock or ETF."
     if asset.get("exchange") not in config.ALLOWED_EXCHANGES:
         return f"{ticker} trades on {asset.get('exchange')}, not a listed exchange."
-    if is_leveraged_or_inverse(ticker, asset.get("name", "")):
-        return f"{ticker} is leveraged or inverse. The fund has enough leverage in its convictions."
+    if ticker not in config.LEVERAGED_ALLOWED and is_leveraged_or_inverse(ticker, asset.get("name", "")):
+        return f"{ticker} is a leveraged or inverse fund that isn't on the approved list."
     if not asset.get("fractionable"):
         return f"{ticker} cannot be bought in dollar amounts."
     return None
@@ -64,7 +64,7 @@ def check_liquidity(ticker: str, dollars: float, liq: dict | None) -> str | None
     if not liq:
         return f"No trading volume on file for {ticker}."
     if liq["avg_dollar_volume"] < config.MIN_AVG_DOLLAR_VOLUME:
-        return f"{ticker} trades ${liq['avg_dollar_volume'] / 1e6:,.1f}M a day, under the $50M floor."
+        return f"{ticker} trades ${liq['avg_dollar_volume'] / 1e6:,.1f}M a day, under the ${config.MIN_AVG_DOLLAR_VOLUME / 1e6:,.0f}M floor."
     cap = config.MAX_ORDER_PCT_OF_VOLUME * liq["prior_dollar_volume"]
     if dollars > cap:
         return f"${dollars:,.0f} is more than 1% of a day's trading in {ticker}."
@@ -113,6 +113,29 @@ def _dead_exits(decision: dict, held: dict, trades: list[dict]) -> list[dict]:
     return out
 
 
+def _mood_flip_exits(decision: dict, held: dict, trades: list[dict]) -> list[dict]:
+    """A leveraged fund is held only while the mood points its way. When the mood flips, code exits it."""
+    score = float((decision.get("mood") or {}).get("score", 0.0))
+    selling = {str(t.get("ticker", "")).upper() for t in trades if t.get("action") == "sell"}
+    out = []
+    for tk in held:
+        lev = config.LEVERAGED_ALLOWED.get(tk)
+        if not lev or tk in selling:
+            continue
+        direction = lev[0]
+        if (direction == "bull" and score < 0) or (direction == "bear" and score > 0):
+            out.append({"action": "sell", "ticker": tk, "kind": "direct", "size": "exit", "catalyst": "event",
+                        "reason": "The mood has turned, and leverage does not wait for the Chairman to catch up.",
+                        "from_rule": "mood_flip"})
+    return out
+
+
+def slippage_rate(liq: dict | None) -> float:
+    if liq and liq.get("avg_dollar_volume", 0) < config.THIN_DOLLAR_VOLUME:
+        return config.SLIPPAGE_RESERVE_THIN
+    return config.SLIPPAGE_RESERVE
+
+
 def validate(
     decision: dict,
     *,
@@ -122,10 +145,12 @@ def validate(
     liquidity: dict[str, dict],
     headline_links: dict[str, str],
     paused_names: list[str] | None = None,
+    wild_card_used: bool = False,
 ) -> Result:
     """Check every trade. The holdings minimum counts new names bought in the same run, via a second pass."""
-    first = _validate(decision, book=book, day_number=day_number, assets=assets, liquidity=liquidity,
-                      headline_links=headline_links, paused_names=paused_names, new_names_credit=0)
+    kw = dict(book=book, day_number=day_number, assets=assets, liquidity=liquidity,
+              headline_links=headline_links, paused_names=paused_names, wild_card_used=wild_card_used)
+    first = _validate(decision, **kw, new_names_credit=0)
     blocked = [d for d in first.declined if d["reason"].startswith("Selling all of")]
     if not blocked:
         return first
@@ -134,8 +159,7 @@ def validate(
     if not credit:
         return first
     # Exits only add cash and free slots, so every buy accepted in the first pass is accepted again.
-    return _validate(decision, book=book, day_number=day_number, assets=assets, liquidity=liquidity,
-                     headline_links=headline_links, paused_names=paused_names, new_names_credit=credit)
+    return _validate(decision, **kw, new_names_credit=credit)
 
 
 def _validate(
@@ -147,6 +171,7 @@ def _validate(
     liquidity: dict[str, dict],
     headline_links: dict[str, str],
     paused_names: list[str] | None,
+    wild_card_used: bool,
     new_names_credit: int,
 ) -> Result:
     nav = float(book["nav"])
@@ -159,12 +184,15 @@ def _validate(
     res = Result()
     seen: set[tuple[str, str]] = set()
     leaps = 0
+    wild_cards = 1 if wild_card_used else 0
+    mood = float((decision.get("mood") or {}).get("score", 0.0))
 
     def decline(trade: dict, why: str) -> None:
         res.declined.append({"trade": trade, "reason": why})
 
     raw = [t for t in decision.get("trades", []) if isinstance(t, dict)]
     raw += _dead_exits(decision, held, raw)
+    raw += _mood_flip_exits(decision, held, raw)
     sells = [t for t in raw if t.get("action") == "sell"]
     # Buys strongest first, so if cash runs short it is the mildest idea that shrinks.
     buys = sorted((t for t in raw if t.get("action") != "sell"),
@@ -190,7 +218,10 @@ def _validate(
             decline(t, f"Already {action}ing {ticker} today.")
             continue
         if kind not in config.TRADE_KINDS:
-            decline(t, f"'{kind}' is not a direct, sector or leap trade.")
+            decline(t, f"'{kind}' is not a direct, sector, leap or wild card trade.")
+            continue
+        if kind == "wild_card" and wild_cards >= config.WILD_CARDS_PER_WEEK:
+            decline(t, "The week's wild card has been played. The Chairman is not a casino.")
             continue
         if kind == "leap" and leaps >= config.MAX_LEAPS_PER_DAY:
             decline(t, f"Already {config.MAX_LEAPS_PER_DAY} leaps today. The fund must keep one foot on the ground.")
@@ -207,8 +238,9 @@ def _validate(
         if PRICE_ONLY_RE.search(reason):
             decline(t, "A falling price is not news. The fund trades on vibes.")
             continue
-        link = headline_links.get(hid)
-        if not link:
+        rule = t.get("from_rule")
+        link = None if rule else headline_links.get(hid)
+        if not link and not rule:
             decline(t, f"Cites headline '{hid}', which was not in this morning's news.")
             continue
         if ticker in paused:
@@ -224,7 +256,7 @@ def _validate(
             if size not in config.SELL_SIZES:
                 decline(t, f"'{size}' is not trim or exit.")
                 continue
-            turned = verdict_of.get(ticker) in ("weakened", "dead") or bool(t.get("from_verdict"))
+            turned = verdict_of.get(ticker) in ("weakened", "dead") or bool(t.get("from_verdict")) or bool(rule)
             if size == "trim" and not turned:
                 decline(t, f"Trims need a Weakened or Dead verdict on {ticker}. Nothing about it has changed.")
                 continue
@@ -256,6 +288,7 @@ def _validate(
                 "action": "sell", "ticker": ticker, "dollars": round(dollars, 2), "size": size, "kind": kind,
                 "conviction": None, "catalyst": str(t.get("catalyst") or "event").lower(), "close_all": close_all, "qty": pos["qty"] if close_all else None,
                 "reason": reason, "headline_link": link, "from_verdict": bool(t.get("from_verdict")),
+                "from_rule": rule, "slippage_rate": slippage_rate(liquidity.get(ticker)),
             })
         else:
             conviction = str(t.get("conviction", "")).lower()
@@ -292,11 +325,31 @@ def _validate(
             if why:
                 decline(t, why)
                 continue
+            lev = config.LEVERAGED_ALLOWED.get(ticker)
+            if lev:
+                direction, x = lev
+                if direction == "bull" and mood < config.LEVERAGED_BULL_MIN_MOOD:
+                    decline(t, f"{ticker} is a {x}x bull fund, and a {mood:+.2f} morning is not that good.")
+                    continue
+                if direction == "bear" and mood > config.LEVERAGED_BEAR_MAX_MOOD:
+                    decline(t, f"{ticker} is a {x}x bear fund, and a {mood:+.2f} morning is not that grim.")
+                    continue
+                if CONVICTION_RANK[conviction] > CONVICTION_RANK[config.LEVERAGED_MAX_CONVICTION]:
+                    decline(t, "Leveraged funds top out at a firm conviction. The leverage is the conviction.")
+                    continue
+                others = [h for h in held if h in config.LEVERAGED_ALLOWED and h != ticker]
+                if len(others) >= config.LEVERAGED_MAX_HOLDINGS:
+                    decline(t, f"The fund already holds {others[0]}. One leveraged fund at a time.")
+                    continue
+            if kind == "wild_card" and CONVICTION_RANK[conviction] > CONVICTION_RANK["strong"]:
+                decline(t, "A wild card tops out at a strong conviction.")
+                continue
             existing = float(held.get(ticker, {}).get("market_value", 0.0))
             if existing + dollars > config.POSITION_CAP * nav + 0.5:
                 decline(t, f"{ticker} would be over {int(config.POSITION_CAP * 100)}% of the fund.")
                 continue
-            if ticker not in held and len(held) + 1 > config.MAX_HOLDINGS:
+            names = [h for h in held if h not in config.LEVERAGED_ALLOWED]  # a leveraged fund is a market bet, not a name
+            if ticker not in held and not lev and len(names) + 1 > config.MAX_HOLDINGS:
                 decline(t, f"A new name would take the fund past {config.MAX_HOLDINGS} holdings. Exit something first.")
                 continue
             fit = shrink_to_cash(dollars, cash)
@@ -315,10 +368,13 @@ def _validate(
             res.accepted.append({
                 "action": "buy", "ticker": ticker, "dollars": fit, "size": None, "kind": kind,
                 "conviction": conviction, "catalyst": catalyst, "shrunk": fit < dollars, "close_all": False, "qty": None,
-                "reason": reason, "headline_link": link, "from_verdict": False,
+                "reason": reason, "headline_link": link, "from_verdict": False, "from_rule": None,
+                "leveraged": bool(lev), "slippage_rate": slippage_rate(liquidity.get(ticker)),
             })
         if kind == "leap":
             leaps += 1
+        if kind == "wild_card":
+            wild_cards += 1
         seen.add((ticker, action))
 
     res.cash_after = cash
@@ -356,3 +412,33 @@ def cash_check(cash: float, nav: float, recent_sales: float, mood_score: float |
     counted = max(0.0, cash - recent_sales) / nav
     return {"cash_pct": round(100 * cash / nav, 1), "counted_cash_pct": round(100 * counted, 1),
             "target_pct": round(100 * target, 1), "on_target": counted <= target + 0.005}
+
+
+def wild_card_used_this_week(trades: list[dict], day: str) -> bool:
+    """Whether a wild card already filled in the same Monday-to-Friday week as `day`."""
+    from datetime import date as _d
+    wk = _d.fromisoformat(day).isocalendar()[:2]
+    return any(t.get("kind") == "wild_card" and t.get("status") in ("filled", "partially_filled")
+               and _d.fromisoformat(t["date"]).isocalendar()[:2] == wk for t in trades)
+
+
+def slippage_charge(records: list[dict]) -> float:
+    """The reserve for today's fills: each trade's own rate times what actually filled."""
+    return sum(float(r.get("filled_dollars") or 0) * float(r.get("slippage_rate") or config.SLIPPAGE_RESERVE)
+               for r in records if r.get("filled_qty"))
+
+
+def declined_leverage(mood_score: float, positions: list[dict], accepted: list[dict]) -> str | None:
+    """On an extreme morning, the direction the Chairman should have bet but didn't, else None."""
+    if mood_score >= config.LEVERAGED_BULL_MIN_MOOD:
+        want = "bull"
+    elif mood_score <= config.LEVERAGED_BEAR_MAX_MOOD:
+        want = "bear"
+    else:
+        return None
+    sold = {t["ticker"] for t in accepted if t["action"] == "sell" and t.get("close_all")}
+    held = [p["ticker"] for p in positions if p["ticker"] not in sold] + \
+           [t["ticker"] for t in accepted if t["action"] == "buy"]
+    if any(config.LEVERAGED_ALLOWED.get(t, ("",))[0] == want for t in held):
+        return None
+    return want

@@ -61,5 +61,17 @@ def test_build_prompt_renders():
     assert '"headline_id": "h3"' in p
 
 
+def test_prompt_knows_the_weekday_and_wild_card():
+    book = {"nav": 100_000, "cash": 100_000, "positions": []}
+    heads = [{"id": "h1", "source": "Wire", "published": "t", "title": "x", "tickers": []}]
+    fri = decide.build_prompt(date="2026-11-06", day_number=9, book=book, headlines=heads, recent_reasons=[])
+    assert "Friday 2026-11-06" in fri and "it is Friday: play it today" in fri
+    wed = decide.build_prompt(date="2026-11-04", day_number=7, book=book, headlines=heads, recent_reasons=[])
+    assert "has not been played yet" in wed
+    used = decide.build_prompt(date="2026-11-06", day_number=9, book=book, headlines=heads, recent_reasons=[],
+                               wild_card_used=True)
+    assert "already been played" in used
+
+
 def test_prompt_version():
     assert decide.prompt_version().startswith("2026-")
